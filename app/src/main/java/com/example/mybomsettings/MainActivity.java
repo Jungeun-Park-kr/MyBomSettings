@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                 // TODO : use strText
                 switch(position) {
                     case 0: // 소리
-                        // settingAudio();
+                         settingSound();
                         break;
                     case 1: // 디스플레이
                         settingDisplay();
@@ -59,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void settingDisplay() { // 디스플레이 설정
         Intent displayIntent = new Intent(getApplicationContext(), DisplayList.class);
+        startActivity(displayIntent);
+    }
+
+    public void settingSound() {
+        Intent displayIntent = new Intent(getApplicationContext(), SoundList.class);
         startActivity(displayIntent);
     }
 }
