@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="array_notice">
+        <item>없음</item>
+        <item>Pixie Dust</item>
+        <item>Pizzicato</item>
+        <item>Plastic Pipe</item>
+        <item>Polaris</item>
+        <item>Pollux</item>
+        <item>Procyon</item>
+        <item>Proxima</item>
+        <item>Radon</item>
+        <item>Regulus</item>
+        <item>Rubidium</item>
+        <item>Selenium</item>
+        <item>Shaula</item>
+        <item>Sirius</item>
+        <item>Sirrah</item>
+        <item>Space Seed</item>
+        <item>Spica</item>
+        <item>Strontium</item>
+        <item>Syrma</item>
+        <item>Ta Da</item>
+        <item>Talitha</item>
+<!--        아직 몇개 더 있음 -->
+    </string-array>
+
+    <string-array name="array_alarm">
+        <item>없음</item>
+        <item>Argon</item>
+        <item>Barium</item>
+        <item>BeepBeep Alarm</item>
+        <item>Beep-Beep-Beep Alarm</item>
+        <item>Buzzer Alarm</item>
+        <item>Carbon</item>
+        <item>Cesium</item>
+        <item>Hassium</item>
+        <item>Krypton</item>
+        <item>Neon</item>
+        <!--        아직 몇개 더 있음 -->
+    </string-array>
+</resources>
