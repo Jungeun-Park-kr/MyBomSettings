@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<PreferenceCategory android:title="디스플레이">
+    <PreferenceCategory android:title="디스플레이">
         <SeekBarPreference
             android:key="brightness"
             android:title="밝기 수준"
@@ -9,22 +9,21 @@
             android:key="brightnessMode"
             android:title="자동 밝기 조절"
             android:summary="빛의 양에 따라 밝기 수준 최적화"/>
-    </PreferenceCategory>-->
-<!--    <PreferenceCategory android:title="소리">-->
-<!--        Android용:max 15,15,15,  CLOi용:max 10,10,5-->
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="소리">
+        <!--        Android용:max 15,15,15,  CLOi용:max 10,10,5-->
         <SeekBarPreference
-            android:id="@+id/mediaVolumeSB"
             android:key="mediaVolume"
             android:title="미디어 볼륨"
             android:max="10" />
         <SeekBarPreference
-            android:id="@+id/alarmVolumeSB"
             android:key="alarmVolume"
             android:title="알람 볼륨"
             android:max="10"/>
-<!--       알림 볼륨 -> 시스템 볼륨  (클로이가 알림 볼륨 자체가 없음) -->
+
         <SeekBarPreference
-            android:id="@+id/noticeVolumeSB"
             android:key="noticeVolume"
             android:title="통화 볼륨"
             android:max="5"/>
@@ -45,5 +44,5 @@
             android:defaultValue="없음"
             android:title="기본 알람 벨소리"/>
 
-<!--    </PreferenceCategory>-->
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -2,8 +2,12 @@ package com.example.mybomsettings;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,7 +16,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    static final String[] SETTINGS_MENU = {"소리", "디스플레이", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
+    static final String[] SETTINGS_MENU = {"시스템 설정", "디스플레이", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(v.getContext(), strText+", position: "+position, Toast.LENGTH_SHORT).show();
                 // TODO : use strText
                 switch(position) {
-                    case 0: // 소리
+                    case 0: // 소리 -> 시스템 설정
                          settingSound();
                         break;
                     case 1: // 디스플레이
@@ -55,6 +59,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }) ;
+
+
+        NotificationManager notificationManager =
+                (NotificationManager)getApplicationContext().getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && !notificationManager.isNotificationPolicyAccessGranted()) {
+            Log.e("MyTag:", "권한 없음");
+            Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+            startActivity(intent);
+        }
     }
 
     public void settingDisplay() { // 디스플레이 설정
