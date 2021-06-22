@@ -44,7 +44,9 @@ public class SystemPreferenceFragment extends PreferenceFragment {
     ListPreference alarmPreference;
     SeekBarPreference alarmSeekBar;
     SeekBarPreference mediaSeekBar;
-    SeekBarPreference noticeSeekBar;
+    SeekBarPreference callSeekBar;
+    SeekBarPreference notificationSeekBar;
+    SeekBarPreference systemSeekBar;
 
     private AudioManager mAudioManager;
     MediaPlayer mediaPlayer;
@@ -56,7 +58,9 @@ public class SystemPreferenceFragment extends PreferenceFragment {
         alarmPreference = (ListPreference)findPreference("alarm_list");
         mediaSeekBar = (SeekBarPreference)findPreference("mediaVolume");
         alarmSeekBar = (SeekBarPreference)findPreference("alarmVolume");
-        noticeSeekBar = (SeekBarPreference)findPreference("noticeVolume");
+        callSeekBar = (SeekBarPreference)findPreference("callVolume");
+        notificationSeekBar = (SeekBarPreference)findPreference("notificationVolume");
+        systemSeekBar = (SeekBarPreference)findPreference("systemVolume");
         brightnessSeekBar = (SeekBarPreference)findPreference("brightness");
         brightnessModeSwitch = (SwitchPreference)findPreference("brightnessMode");
 
@@ -66,7 +70,7 @@ public class SystemPreferenceFragment extends PreferenceFragment {
 
         Log.i("MyTag:", "media:"+(prefs.getInt("mediaVolume", -1)));
         Log.i("MyTag:", "alarm:"+(prefs.getInt("alarmVolume", -1)));
-        Log.i("MyTag:", "notice:"+(prefs.getInt("noticeVolume", -1)));
+        Log.i("MyTag:", "notice:"+(prefs.getInt("callVolume", -1)));
         // 기본값 세팅
         if (!prefs.getString("notice_list", "").equals("")) {
             noticePreference.setSummary(prefs.getString("notice_list", "없음"));
@@ -84,10 +88,20 @@ public class SystemPreferenceFragment extends PreferenceFragment {
         } else {
             alarmSeekBar.setValue(mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM));
         }
-        if (!(prefs.getInt("noticeVolume", -1) == -1)) {
-            noticeSeekBar.setValue(prefs.getInt("noticeVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL)));
+        if (!(prefs.getInt("callVolume", -1) == -1)) {
+            callSeekBar.setValue(prefs.getInt("callVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL)));
         }else {
-            noticeSeekBar.setValue(mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
+            callSeekBar.setValue(mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
+        }
+        if (!(prefs.getInt("notificationVolume", -1) == -1)) {
+            notificationSeekBar.setValue(prefs.getInt("notificationVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)));
+        }else {
+            notificationSeekBar.setValue(mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION));
+        }
+        if (!(prefs.getInt("systemVolume", -1) == -1)) {
+            systemSeekBar.setValue(prefs.getInt("systemVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_SYSTEM)));
+        }else {
+            systemSeekBar.setValue(mAudioManager.getStreamVolume(AudioManager.STREAM_SYSTEM));
         }
         if (!(prefs.getInt("brightness", 0) == -1)) {
             int  currentBrightness = Settings.System.getInt(getActivity().getApplicationContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, /* default value */ 50);
@@ -111,9 +125,6 @@ public class SystemPreferenceFragment extends PreferenceFragment {
 
         prefs.registerOnSharedPreferenceChangeListener(prefListener);
 
-        Log.i("MyTag:", "미디어:"+mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-        Log.i("MyTag:", "알람:"+mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM));
-        Log.i("MyTag:", "알림->시스템->통화:"+mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL)); // CLOi가 알림(NOTIFICATION), 시스템(SYSTEM)이 아예 없음 에러남
 
         Log.i("MyTag:", "현재 밝기:"+Settings.System.getInt(getActivity().getApplicationContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 50));
         // android 폰 - max : 15, 15, 15,         CLOi - max : 10,10,7
@@ -122,7 +133,7 @@ public class SystemPreferenceFragment extends PreferenceFragment {
         Log.i("MyTag:", "알림->시스템->통화 max:"+mAudioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL)); // CLOi가 알림(NOTIFICATION), 시스템(SYSTEM)이 아예 없음 에러남*/
 
 
-        Log.i("MyTag:", "-------------변경전-------------\nisVolumeFixed (): "+mAudioManager.isVolumeFixed());
+        /*Log.i("MyTag:", "-------------변경전-------------\nisVolumeFixed (): "+mAudioManager.isVolumeFixed());
         Log.i("MyTag:", "noti-max : "+mAudioManager.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION));
         Log.i("MyTag:", "system-max : "+mAudioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
         Log.i("MyTag:", "STREAM_SYSTEM-is mute : "+mAudioManager.isStreamMute(AudioManager.STREAM_SYSTEM));
@@ -132,22 +143,7 @@ public class SystemPreferenceFragment extends PreferenceFragment {
         Log.i("MyTag:", "-------------변경후-------------\nSTREAM_SYSTEM-is mute : "+mAudioManager.isStreamMute(AudioManager.STREAM_SYSTEM));
         Log.i("MyTag:", "STREAM_NOTIFICATION-is mute : "+mAudioManager.isStreamMute(AudioManager.STREAM_NOTIFICATION));
         Log.i("MyTag:", "system : "+mAudioManager.getStreamVolume(AudioManager.STREAM_SYSTEM));
-        Log.i("MyTag:", "STREAM_NOTIFICATION : "+mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION));
-
-        mAudioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 7, FLAG_PLAY_SOUND);
-        mAudioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, 7, FLAG_PLAY_SOUND);
-        Log.i("MyTag:", "-------------7로 변경후-------------\nsystem : "+mAudioManager.getStreamVolume(AudioManager.STREAM_SYSTEM));
-        Log.i("MyTag:", "STREAM_NOTIFICATION : "+mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION));
-        Log.i("MyTag:", "STREAM_RING : "+mAudioManager.getStreamVolume(AudioManager.STREAM_RING));
-        Log.i("MyTag:", "STREAM_DTMF : "+mAudioManager.getStreamVolume(AudioManager.STREAM_DTMF));
-        Log.i("MyTag:", "STREAM_VOICE_CALL : "+mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
-        Log.i("MyTag:", "STREAM_ALARM : "+mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM));
-
-/*
-        mediaPlayer.stop();
-        mediaPlayer.reset();
-*/
-
+        Log.i("MyTag:", "STREAM_NOTIFICATION : "+mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION));*/
     }
 
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -184,20 +180,34 @@ public class SystemPreferenceFragment extends PreferenceFragment {
                 Log.i("MyTag:", "uri:"+alarm);*/
 
                 // MediaPlayer 객체 할당
-                 mediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.dingdong);
-                mediaPlayer.start();
+                 /*mediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.dingdong);
+                mediaPlayer.start();*/
             }
-            if (key.equals("noticeVolume")) {
-                noticeSeekBar.setValue(prefs.getInt("noticeVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL)));
+            if (key.equals("callVolume")) {
+                callSeekBar.setValue(prefs.getInt("callVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL)));
 
                 mAudioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
-                        (int)(prefs.getInt("noticeVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL))),
+                        (int)(prefs.getInt("callVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL))),
                         FLAG_PLAY_SOUND);
 
                 /*Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 Ringtone rt = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notification);
                 rt.play();
                 Log.i("MyTag:", "uri:"+notification);*/
+            }
+            if (key.equals("notificationVolume")) {
+                notificationSeekBar.setValue(prefs.getInt("notificationVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)));
+
+                mAudioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION,
+                        (int)(prefs.getInt("notificationVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION))),
+                        FLAG_PLAY_SOUND);
+            }
+            if (key.equals("systemVolume")) {
+                systemSeekBar.setValue(prefs.getInt("systemVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_SYSTEM)));
+
+                mAudioManager.setStreamVolume(AudioManager.STREAM_SYSTEM,
+                        (int)(prefs.getInt("systemVolume", mAudioManager.getStreamVolume(AudioManager.STREAM_SYSTEM))),
+                        FLAG_PLAY_SOUND);
             }
             if (key.equals("brightness")) {
                 int  currentBrightness = Settings.System.getInt(getActivity().getApplicationContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, /* default value */ 50);

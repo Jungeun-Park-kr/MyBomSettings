@@ -22,11 +22,19 @@
             android:key="alarmVolume"
             android:title="알람 볼륨"
             android:max="10"/>
-
         <SeekBarPreference
-            android:key="noticeVolume"
+            android:key="callVolume"
             android:title="통화 볼륨"
             android:max="5"/>
+        <SeekBarPreference
+            android:key="systemVolume"
+            android:title="시스템 볼륨"
+            android:max="7"/>
+        <SeekBarPreference
+            android:key="notificationVolume"
+            android:title="알림 볼륨"
+            android:max="7"/>
+
 
         <ListPreference
             android:entries="@array/array_notice"
