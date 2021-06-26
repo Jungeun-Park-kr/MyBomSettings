@@ -37,4 +37,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.android.support:preference-v7:28.1.0' // seekbarpreference
+    implementation 'com.airbnb.android:lottie:3.0.0' //로띠 이미지
+    implementation 'com.github.bumptech.glide:glide:4.11.0' //glide (gif 넣는 겁에용. 로띠는 json이 이상하게 출력 되어서 맘에 안들어요.)
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 }
