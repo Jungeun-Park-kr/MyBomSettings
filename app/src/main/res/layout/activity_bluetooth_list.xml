@@ -65,8 +65,17 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/list_registered_devices"
+    <TextView
+        android:id="@+id/pairedNoInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="페어링된 디바이스가 없습니다."
+        android:visibility="gone"
+        android:gravity="center" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:id="@+id/recyclerview_registered_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/button_scan"
