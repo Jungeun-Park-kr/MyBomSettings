@@ -1,18 +1,14 @@
 package com.example.mybomsettings;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-
-import android.Manifest;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,12 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.Context;
-import android.content.BroadcastReceiver;
-import android.content.DialogInterface;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
@@ -58,9 +51,14 @@ public class BluetoothList extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     BluetoothDevice device;
     BluetoothDevice paired;
+
     BluetoothSocket bluetoothSocket;
     Handler bluetoothHandler;
     ConnectedBluetoothThread threadConnectedBluetooth;
+
+    // streams
+    InputStream           mBTInputStream  = null;
+    OutputStream          mBTOutputStream = null;
 
     final static int BT_MESSAGE_READ = 2;
     final static int BT_CONNECTING_STATUS = 3;
@@ -87,11 +85,12 @@ public class BluetoothList extends AppCompatActivity {
     SimpleAdapter adapterBluetooth;
 
     //list - Bluetooth 목록 저장
-    Set<BluetoothDevice> pairedDevices;
     List<String> pairedList;
     List<Map<String,String>> dataPaired;
     List<Map<String, String>> dataBluetooth;
-    List<BluetoothDevice> bluetoothDevices;
+    List<BluetoothDevice> bluetoothDevices; // 검색된 디바이스 저장
+//    List<BluetoothDevice> bluetoothPairedDevices; // 페어링된 디바이스 저장
+    List<BluetoothDevice> pairedDevices; // 페어링된 디바이스 정보 저장
     int selectDevice;
 
     
@@ -148,14 +147,24 @@ public class BluetoothList extends AppCompatActivity {
 
         // 이미 등록된 디바이스 목록 클릭시 환경 설정
         registeredDevices.setOnItemClickListener((parent, view, position, id) -> {
-            
+            // 페어링된 기기 정보 다이얼로그 띄우기
+            // in here
+
+            // 저장 안함 버튼 클릭할 경우
+            device = pairedDevices.get(position);
+            try {
+                Method m = device.getClass()
+                        .getMethod("removeBond", (Class[]) null);
+                m.invoke(device, (Object[]) null);
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
         });
                 
 
         //검색된 디바이스목록 클릭시 페어링 요청
         availableDevices.setOnItemClickListener((parent, view, position, id) -> {
             device = bluetoothDevices.get(position);
-
             try {
                 Method method = device.getClass().getMethod("createBond", (Class[]) null);
                 method.invoke(device, (Object[]) null);
@@ -277,7 +286,7 @@ public class BluetoothList extends AppCompatActivity {
 
 
         // 페어링된 디바이스 목록 가져오기
-        pairedDevices = bluetoothAdapter.getBondedDevices();
+        pairedDevices = new ArrayList<>(bluetoothAdapter.getBondedDevices()); // Set을 List로 변환해서 저장
         if (pairedDevices.size() > 0) {
             // There are paired devices. Get the name and address of each paired device.
             for (BluetoothDevice device : pairedDevices) {
@@ -306,8 +315,7 @@ public class BluetoothList extends AppCompatActivity {
         }
 
         if (bluetoothAdapter.isEnabled()) {
-            pairedDevices = bluetoothAdapter.getBondedDevices();
-
+            pairedDevices = new ArrayList<>(bluetoothAdapter.getBondedDevices()); // Set을 List로 변환해서 저장
         }
         //mBluetoothAdapter.startDiscovery() : 블루투스 검색 시작
         bluetoothAdapter.startDiscovery();
@@ -328,12 +336,12 @@ public class BluetoothList extends AppCompatActivity {
         }
         try { // 선택한 디바이스 정보를 얻어 Bluetooth Sockect 생성
             bluetoothSocket = paired.createInsecureRfcommSocketToServiceRecord(MY_UUID);
+
         } catch (IOException e) {
             Log.e(TAG, "create() failed", e);
         }
         try { // BluetoothSocket 연결 시도
             bluetoothSocket.connect();
-            Log.d(TAG, "Connect Succeeded");
         } catch (IOException e) {
             if(paired.getBondState() == BluetoothDevice.BOND_BONDED) { // 오류 나도 페어링은 잘 됨...
                 Log.i(TAG, "페어링은 또 되었다");
@@ -349,6 +357,13 @@ public class BluetoothList extends AppCompatActivity {
                 }
                 return;
             }
+        }
+        Log.d(TAG, "connect() : Connect Succeeded");
+        try {
+            mBTOutputStream = bluetoothSocket.getOutputStream();
+            mBTInputStream  = bluetoothSocket.getInputStream();
+        } catch (Exception e) {
+            Log.e(TAG, "connect(): Error attaching i/o streams to socket. msg=" + e.getMessage());
         }
 
         if (threadConnectedBluetooth != null) { // Cancel any thread currently running a connection
@@ -367,6 +382,39 @@ public class BluetoothList extends AppCompatActivity {
         paredAdapterBluetooth.notifyDataSetChanged(); //리스트 목록갱신
 
         Log.e("click4", String.valueOf(bluetoothSocket));
+    }
+
+    /**
+     * Reset input and output streams and make sure socket is closed.
+     * This method will be used during shutdown() to ensure that the connection is properly closed during a shutdown.
+     * @return
+     */
+    private void resetConnection() {
+        if (mBTInputStream != null) {
+            try {mBTInputStream.close();} catch (Exception e) {}
+            mBTInputStream = null;
+        }
+
+        if (mBTOutputStream != null) {
+            try {mBTOutputStream.close();} catch (Exception e) {}
+            mBTOutputStream = null;
+        }
+
+        if (bluetoothSocket != null) {
+            try {bluetoothSocket.close();} catch (Exception e) {}
+            bluetoothSocket = null;
+        }
+
+    }
+
+    private void unpairDevice(BluetoothDevice device) {
+        try {
+            Method m = device.getClass()
+                    .getMethod("removeBond", (Class[]) null);
+            m.invoke(device, (Object[]) null);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
     }
 
 
@@ -491,7 +539,7 @@ public class BluetoothList extends AppCompatActivity {
                 paired = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (paired.getBondState() == BluetoothDevice.BOND_BONDED) {
                     //데이터 저장
-                    pairedDevices = bluetoothAdapter.getBondedDevices();
+                    pairedDevices = new ArrayList<>(bluetoothAdapter.getBondedDevices()); // Set을 List로 변환해서 저장
                     Log.e(TAG, "paired:" + String.valueOf(pairedDevices));
 
 
