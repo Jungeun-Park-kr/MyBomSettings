@@ -34,7 +34,6 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
     Dialog bluetoothDialog; // 블루투스 기기 클릭시 띄울 다이얼로그
     private static final String TAG = "MyTag:BluetoothRAdapter)";
 
-    @SuppressLint("LongLogTag")
     public BluetoothRAdapter(Context c, List<Bluetooth> bluetoothDevices) {
         myBluetoothList = new ArrayList<Bluetooth>();
         Context myContexxt = (Context)c;
@@ -184,7 +183,6 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
         return super.getItemId(position);
     }
 
-    @SuppressLint("LongLogTag")
     private void showBluetoothDialog(View v, int pos) { // 다이얼로그 디자인 및 띄우기
         Log.i(TAG, "다이얼로그 띄우기");
         bluetoothDialog.show();
