@@ -8,30 +8,37 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.content.DialogInterface;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import static  com.example.mybomsettings.BluetoothList.STATE_NONE;
+import static  com.example.mybomsettings.BluetoothList.STATE_CONNECTING;
+import static  com.example.mybomsettings.BluetoothList.STATE_CONNECTED;
+import static com.example.mybomsettings.BluetoothList.connectPairedDevice;
+import static com.example.mybomsettings.BluetoothList.disconnectPairedDevice;
 import static com.example.mybomsettings.BluetoothList.unpairDevice;
 
-
+@SuppressLint("LongLogTag")
 public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.ViewHolder>{
 
     public static ArrayList<Bluetooth> myBluetoothList;
+    private static BluetoothDevice connected;
 
     Dialog bluetoothDialog; // 블루투스 기기 클릭시 띄울 다이얼로그
     private static final String TAG = "MyTag:BluetoothRAdapter)";
 
     @SuppressLint("LongLogTag")
-    public BluetoothRAdapter(Context c, List<BluetoothDevice> bluetoothDevices) {
+    public BluetoothRAdapter(Context c, List<Bluetooth> bluetoothDevices) {
         myBluetoothList = new ArrayList<Bluetooth>();
         Context myContexxt = (Context)c;
 
@@ -39,12 +46,9 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
         if (bluetoothDevices.size() > 0) {
 
             // There are paired devices. Get the name and address of each paired device.
-            for (BluetoothDevice device : bluetoothDevices) {
-                String deviceName = device.getName(); // 디바이스 이름
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                Log.i(TAG, "페어링된 기기:"+deviceName);
-
-                myBluetoothList.add(new Bluetooth(device));
+            for (Bluetooth device : bluetoothDevices) {
+                Log.i(TAG, "페어링된 기기:"+device.getName());
+                myBluetoothList.add(device);
             }
         }
     }
@@ -55,7 +59,7 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
         public TextView textName; // 기기 이름
         public TextView textConnectState; // 기기 연결 상태 (연결중.../연결됨/GONE)
 
-        @SuppressLint("ClickableViewAccessibility")
+        @SuppressLint({"ClickableViewAccessibility", "LongLogTag"})
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -66,8 +70,10 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
             itemView.setOnClickListener(this);
             item.setOnClickListener(this);
             setting.setOnClickListener(this);
-
+            
         }
+
+
 
         @SuppressLint("LongLogTag")
         @Override
@@ -81,12 +87,62 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                 bluetoothDialog.setContentView(R.layout.activity_bluetooth_dialog);
                 showBluetoothDialog(v, pos);
             } else { // 기기 이름 버튼 - 블루투스 연결하기
-                // TODO : 블루투스 연결하기
+                // TODO : 블루투스 연결하기 - 안됨..
 //                BluetoothList.connectSelectedDevice((String) myBluetoothList.get(pos).getName());
                 Log.i(TAG, "기기 클릭:"+(String) myBluetoothList.get(pos).getName());
+
+                BluetoothDevice device = myBluetoothList.get(pos).getDevice();
+                if (myBluetoothList.get(pos).getConnected()) { // 이미 연결 되어있는 경우
+                    // 연결 해제 다이얼로그 띄우기
+                    AlertDialog.Builder adb = new AlertDialog.Builder(v.getContext());
+                    adb.setTitle("연결을 해제하시겠습니까?");
+                    adb.setCancelable(true);
+                    adb.setMessage(myBluetoothList.get(pos).getName()+"와(과) 연결이 끊어집니다.");
+                    adb.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            disconnectPairedDevice(myBluetoothList.get(pos).getDevice());
+                            dialog.dismiss();
+                        }
+                    });
+                    adb.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog alertDialog = adb.create();
+                    alertDialog.show();
+                } else { // 연결 안되어있는 경우
+                    // 연결 시도하기
+                    connectPairedDevice(myBluetoothList.get(pos).getDevice());
+                }
+                /*if (BluetoothList.getState() == STATE_NONE) { // 페어링은 되어있으나 연결이 안되어 있는 경우
+                    *//*textConnectState.setVisibility(View.VISIBLE);
+                    textConnectState.setText("연결중...");*//*
+                    connectPairedDevice(myBluetoothList.get(pos).getDevice());
+                    *//*textConnectState.setVisibility(View.VISIBLE);
+                    textConnectState.setText("연결됨");*//*
+                } else if (BluetoothList.getState() == STATE_CONNECTING) { // 연결 중
+                    ;
+                } else if (BluetoothList.getState() == STATE_CONNECTED) { // 연결 완료된 경우
+                    //textConnectState.setVisibility(View.GONE);
+                    disconnectPairedDevice(myBluetoothList.get(pos).getDevice());
+                } else { // 연결 시도하기
+                    *//*textConnectState.setVisibility(View.VISIBLE);
+                    textConnectState.setText("연결중...");*//*
+                    connectPairedDevice(myBluetoothList.get(pos).getDevice());
+                    *//*textConnectState.setVisibility(View.VISIBLE);
+                    textConnectState.setText("연결됨");*//*
+                }*/
             }
+
         }
+
     }
+
+
+
 
     @NonNull
     @Override
@@ -102,7 +158,6 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
 
     public void addBluetoothDevice(Bluetooth device) { myBluetoothList.add(device); } // 테스트2용
 
-    @SuppressLint("LongLogTag")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Here we use the information in the list we create to define the views
@@ -111,6 +166,14 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
             // 이름 보이기
             TextView name = holder.textName;
             name.setText(myBluetoothList.get(position).getName());
+        }
+        TextView connectState = holder.textConnectState;
+        if (myBluetoothList.get(position).getConnected()) { // 연결 되어있는 경우
+            Log.i(TAG, myBluetoothList.get(holder.getAdapterPosition())+"<- 현재 연결됨");
+            connectState.setText("연결됨");
+            connectState.setVisibility(View.VISIBLE);
+        } else {
+            connectState.setVisibility(View.GONE);
         }
     }
 
@@ -154,9 +217,6 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
             }
         });
 
-
-
     }
-
 
 }

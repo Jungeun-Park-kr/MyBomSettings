@@ -11,6 +11,7 @@ import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -19,6 +20,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,7 +41,15 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSION_ACCESS_COARSE_LOCATION);
         }
-
+        // Use this check to determine whether BLE is supported on the device. Then
+        // you can selectively disable BLE-related features.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+           // Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "BLE 지원안됨");
+            finish();
+        } else {
+            Log.e(TAG, "BLE 지원됨");
+        }
 
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, SETTINGS_MENU) ;
 
@@ -85,6 +95,10 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
             Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
             startActivity(intent);
         }
+
+        /*// Bluetooth Service 시작
+        Intent intent = new Intent(this, BluetoothService.class);
+        startService(intent);*/
 
     }
 

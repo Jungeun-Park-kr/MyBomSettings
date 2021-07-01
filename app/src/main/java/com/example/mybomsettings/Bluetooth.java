@@ -8,10 +8,13 @@ public class Bluetooth {
     private CharSequence name; // 블루투스 기기 이름
     private CharSequence address; // 블루투스 MAC 주소
 
+    private Boolean connected; // 연결 유무
+
     public Bluetooth(BluetoothDevice device) {
         this.device = device;
         this.name = device.getName();
         this.address = device.getAddress();
+        this.connected = false;
     }
 
     public BluetoothDevice getDevice() {
@@ -36,6 +39,14 @@ public class Bluetooth {
 
     public void setAddress(CharSequence address) {
         this.address = address;
+    }
+
+    public Boolean getConnected() {
+        return connected;
+    }
+
+    public void setConnected(Boolean connected) {
+        this.connected = connected;
     }
 
 }
