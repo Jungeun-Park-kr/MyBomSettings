@@ -1,36 +1,26 @@
 package com.example.mybomsettings;
 
-import android.app.NotificationManager;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.SharedPreferences;
-import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.preference.ListPreference;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreference;
 
-import static android.media.AudioManager.ADJUST_UNMUTE;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
 import static android.provider.Settings.System.SCREEN_BRIGHTNESS;
 import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE;
 import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
 import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
-import static com.example.mybomsettings.DisplayList.baseContext;
 
 
 public class SystemPreferenceFragment extends PreferenceFragment {
