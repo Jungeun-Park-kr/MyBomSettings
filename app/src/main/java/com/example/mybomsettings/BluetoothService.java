@@ -8,16 +8,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-import android.content.Intent;
 import android.content.IntentFilter;
 
 import androidx.annotation.RequiresApi;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.example.mybomsettings.BluetoothList.pairedDevices;
-import static com.example.mybomsettings.BluetoothList.updateBluetoothList;
+import static com.example.mybomsettings.BluetoothListActivity.pairedDevices;
+import static com.example.mybomsettings.BluetoothListActivity.updateBluetoothList;
 
 public class BluetoothService extends Service {
     private static final String TAG = "MyTag:Bluetooth Service";

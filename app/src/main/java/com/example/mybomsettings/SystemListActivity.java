@@ -32,7 +32,7 @@ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
 import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
-public class SystemList extends AppCompatActivity{
+public class SystemListActivity extends AppCompatActivity{
 
     // 디스플레이 UI
     SeekBar brightnessSeekBar;

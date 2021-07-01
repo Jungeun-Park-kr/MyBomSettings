@@ -21,12 +21,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-import static  com.example.mybomsettings.BluetoothList.STATE_NONE;
-import static  com.example.mybomsettings.BluetoothList.STATE_CONNECTING;
-import static  com.example.mybomsettings.BluetoothList.STATE_CONNECTED;
-import static com.example.mybomsettings.BluetoothList.connectPairedDevice;
-import static com.example.mybomsettings.BluetoothList.disconnectPairedDevice;
-import static com.example.mybomsettings.BluetoothList.unpairDevice;
+import static com.example.mybomsettings.BluetoothListActivity.connectPairedDevice;
+import static com.example.mybomsettings.BluetoothListActivity.disconnectPairedDevice;
+import static com.example.mybomsettings.BluetoothListActivity.unpairDevice;
 
 @SuppressLint("LongLogTag")
 public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.ViewHolder>{
@@ -88,7 +85,7 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                 showBluetoothDialog(v, pos);
             } else { // 기기 이름 버튼 - 블루투스 연결하기
                 // TODO : 블루투스 연결하기 - 안됨..
-//                BluetoothList.connectSelectedDevice((String) myBluetoothList.get(pos).getName());
+//                BluetoothListActivity.connectSelectedDevice((String) myBluetoothList.get(pos).getName());
                 Log.i(TAG, "기기 클릭:"+(String) myBluetoothList.get(pos).getName());
 
                 BluetoothDevice device = myBluetoothList.get(pos).getDevice();
@@ -117,15 +114,15 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                     // 연결 시도하기
                     connectPairedDevice(myBluetoothList.get(pos).getDevice());
                 }
-                /*if (BluetoothList.getState() == STATE_NONE) { // 페어링은 되어있으나 연결이 안되어 있는 경우
+                /*if (BluetoothListActivity.getState() == STATE_NONE) { // 페어링은 되어있으나 연결이 안되어 있는 경우
                     *//*textConnectState.setVisibility(View.VISIBLE);
                     textConnectState.setText("연결중...");*//*
                     connectPairedDevice(myBluetoothList.get(pos).getDevice());
                     *//*textConnectState.setVisibility(View.VISIBLE);
                     textConnectState.setText("연결됨");*//*
-                } else if (BluetoothList.getState() == STATE_CONNECTING) { // 연결 중
+                } else if (BluetoothListActivity.getState() == STATE_CONNECTING) { // 연결 중
                     ;
-                } else if (BluetoothList.getState() == STATE_CONNECTED) { // 연결 완료된 경우
+                } else if (BluetoothListActivity.getState() == STATE_CONNECTED) { // 연결 완료된 경우
                     //textConnectState.setVisibility(View.GONE);
                     disconnectPairedDevice(myBluetoothList.get(pos).getDevice());
                 } else { // 연결 시도하기

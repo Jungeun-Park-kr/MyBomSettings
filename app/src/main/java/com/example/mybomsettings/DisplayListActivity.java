@@ -22,7 +22,7 @@ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE;
 import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
 import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
 
-public class DisplayList extends AppCompatActivity {
+public class DisplayListActivity extends AppCompatActivity {
     SeekBar brightSeekBar;
     Switch brightModeSwitch;
     public static Context baseContext;

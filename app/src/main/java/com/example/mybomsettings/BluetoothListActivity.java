@@ -48,10 +48,10 @@ import java.util.Set;
 import java.util.UUID;
 
 
-public class BluetoothList extends AppCompatActivity {
+public class BluetoothListActivity extends AppCompatActivity {
 
     private static Context baseContext;
-    private static final String TAG = "BluetoothList MyTag";
+    private static final String TAG = "BluetoothListActivity MyTag";
     public static String pairedDeviceState;
 
     // 저전력 블루투스 (BLE)

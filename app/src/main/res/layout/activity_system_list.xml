@@ -57,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="빛의 양에 따라 밝기 수준 최적화"
-                    android:textSize="11sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
             <View
@@ -178,7 +178,7 @@
         <!--   알람소리, 효과음 sharedpreference 사용하기 위한 fragment -->
         <fragment
             android:id="@+id/fragment_sound_settings"
-            android:name="com.example.mybomsettings.SystemList$SystemSoundFragment"
+            android:name="com.example.mybomsettings.SystemListActivity$SystemSoundFragment"
             android:layout_width="match_parent"
             android:layout_height="150dp"/>
 

@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,11 +15,9 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,17 +100,17 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
     }
 
     public void settingDisplay() { // 디스플레이 설정
-        Intent displayIntent = new Intent(getApplicationContext(), DisplayList.class);
+        Intent displayIntent = new Intent(getApplicationContext(), DisplayListActivity.class);
         startActivity(displayIntent);
     }
 
     public void settingSystem() { // 시스템 세팅 (디스플레이, 소리)
-        Intent systemIntent = new Intent(getApplicationContext(), SystemList.class);
+        Intent systemIntent = new Intent(getApplicationContext(), SystemListActivity.class);
         startActivity(systemIntent);
     }
 
     public void settingBluetooth() {
-        Intent bluetoothIntent = new Intent(getApplicationContext(), BluetoothList.class); //BluetoothList
+        Intent bluetoothIntent = new Intent(getApplicationContext(), BluetoothListActivity.class); //BluetoothListActivity
         startActivity(bluetoothIntent);
 //        startActivity( new Intent( Settings.ACTION_BLUETOOTH_SETTINGS ));
 
@@ -125,12 +122,14 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
 
     public void settingWiFi() {
 //        startActivity( new Intent( Settings.ACTION_WIFI_SETTINGS ));
-        Intent wifiIntent = new Intent(getApplicationContext(), WifiList.class); //BluetoothList
+        Intent wifiIntent = new Intent(getApplicationContext(), WifiList.class); //BluetoothListActivity
         startActivity(wifiIntent);
     }
 
     public void settingDeviceInfo() {
-        startActivity( new Intent( Settings.ACTION_DEVICE_INFO_SETTINGS ));
+//        startActivity( new Intent( Settings.ACTION_DEVICE_INFO_SETTINGS ));
+        Intent deviceInfoIntent = new Intent(getApplicationContext(), DeviceInfoListActivity.class);
+        startActivity(deviceInfoIntent);
     }
 
     public void onRequestPermissionsResult(

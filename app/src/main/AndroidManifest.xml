@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.mybomsettings">
-
     <!-- 시스템 설정 변경 -->
     <uses-permission
         android:name="android.permission.WRITE_SETTINGS"
@@ -12,7 +11,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- 안드로이드 9 미만 블루투스 권한 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="false" />
@@ -24,16 +24,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyBomSettings">
+        <activity android:name=".DeviceInfoListActivity"></activity>
+
         <service
             android:name=".BluetoothService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity android:name=".BluetoothDialogActivity" />
         <activity android:name=".WifiList" />
-        <activity android:name=".BluetoothList" />
-        <activity android:name=".SystemList" />
-        <activity android:name=".DisplayList" />
+        <activity android:name=".BluetoothListActivity" />
+        <activity android:name=".SystemListActivity" />
+        <activity android:name=".DisplayListActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
