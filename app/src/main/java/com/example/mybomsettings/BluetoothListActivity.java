@@ -1,5 +1,6 @@
 package com.example.mybomsettings;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -48,6 +49,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
+@SuppressLint("LongLogTag")
 public class BluetoothListActivity extends AppCompatActivity {
 
     private static Context baseContext;

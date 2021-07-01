@@ -5,14 +5,32 @@
     <!-- 시스템 설정 변경 -->
     <uses-permission
         android:name="android.permission.WRITE_SETTINGS"
-        tools:ignore="ProtectedPermissions" /> <!-- 사운드 설정 변경 -->
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" /> <!-- 블루투스 설정 변경 -->
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- 사운드 설정 변경 -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+
+    <!-- 블루투스 설정 변경 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- 안드로이드 9 미만 블루투스 권한 -->
+
+    <!-- 안드로이드 9 미만 블루투스 권한, WIFI 권한 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!--    WIFI -->
+<!--    <uses-sdk android:minSdkVersion="14" />-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+
+    <!-- 저전력 블루투스 허용 -->
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="false" />
@@ -32,7 +50,7 @@
             android:exported="true" />
 
         <activity android:name=".BluetoothDialogActivity" />
-        <activity android:name=".WifiList" />
+        <activity android:name=".WifiListActivity" />
         <activity android:name=".BluetoothListActivity" />
         <activity android:name=".SystemListActivity" />
         <activity android:name=".DisplayListActivity" />

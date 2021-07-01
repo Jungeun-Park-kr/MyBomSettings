@@ -122,7 +122,7 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
 
     public void settingWiFi() {
 //        startActivity( new Intent( Settings.ACTION_WIFI_SETTINGS ));
-        Intent wifiIntent = new Intent(getApplicationContext(), WifiList.class); //BluetoothListActivity
+        Intent wifiIntent = new Intent(getApplicationContext(), WifiListActivity.class); //BluetoothListActivity
         startActivity(wifiIntent);
     }
 
