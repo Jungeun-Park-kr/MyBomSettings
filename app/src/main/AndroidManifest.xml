@@ -44,11 +44,6 @@
         android:theme="@style/Theme.MyBomSettings">
         <activity android:name=".DeviceInfoListActivity"></activity>
 
-        <service
-            android:name=".BluetoothService"
-            android:enabled="true"
-            android:exported="true" />
-
         <activity android:name=".BluetoothDialogActivity" />
         <activity android:name=".WifiListActivity" />
         <activity android:name=".BluetoothListActivity" />
@@ -62,17 +57,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".BootReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.REBOOT" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

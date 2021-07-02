@@ -26,7 +26,10 @@ import android.widget.Toast;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @SuppressLint("LongLogTag")
 public class WifiListActivity extends AppCompatActivity {
@@ -39,6 +42,8 @@ public class WifiListActivity extends AppCompatActivity {
     WifiManager wifiManager;
     ConnectivityManager connManager;
     NetworkInfo mWifi;
+
+
     // UI
     SwitchMaterial wifiSwitch; // 블루투스 사용 유무 스위치
     RecyclerView recyclerView;
@@ -48,7 +53,7 @@ public class WifiListActivity extends AppCompatActivity {
     
     // Adapter
     WifiRAdapter wifiRAdapter;
-
+    List<WiFi> wifiList;
 
 
     @Override
@@ -78,6 +83,12 @@ public class WifiListActivity extends AppCompatActivity {
             if (isChecked && !checkWifiOnAndConnected()) { // 스위치 ON
                 wifiManager.setWifiEnabled(true);
                 contents.setVisibility(View.VISIBLE);
+
+                // 바로 스캔 시작
+                boolean success = wifiManager.startScan();
+                if (!success) {
+                    Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
+                }
             } else { // 스위치 OFF
                 wifiManager.setWifiEnabled(false);
                 contents.setVisibility(View.GONE);
@@ -105,6 +116,12 @@ public class WifiListActivity extends AppCompatActivity {
             boolean success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false); //스캔 성공 여부 값 반환
             if (success) {
                 scanSuccess();
+                try {
+                    Thread.sleep(3000);
+                    //getApplicationContext().unregisterReceiver(wifiScanReceiver); // 더이상 리시버 받지 않음! <- 이거 없으면 Adapter에 등록되기도 전에 wifiList가 계속 갱신되어 중복 데이터가 저장되어버림
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             } else { // scan failure handling
                 scanFailure();
             }
@@ -120,22 +137,62 @@ public class WifiListActivity extends AppCompatActivity {
 
     //버튼을 눌렀을 때
     public void clickWifiScan(View view) {
+        //getApplicationContext().registerReceiver(wifiScanReceiver, intentFilter);
         boolean success = wifiManager.startScan();
         if (!success) {
             Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
         }
     }// clickWifiScan()..
 
+
+
     private void scanSuccess() {    // Wifi검색 성공
+        wifiList = new ArrayList<>();
         List<ScanResult> results = wifiManager.getScanResults(); // 검색된 WiFi 목록들
-//        Log.i(TAG, "test)"+results.get(0).toString());
+        /*// 중복 방지
+        List<ScanResult> raw_wifi_scan_list = wifiManager.getScanResults();
+        Set<ScanResult> unique_wifi_scan_set = new HashSet(raw_wifi_scan_list);
+        List<ScanResult> results = new ArrayList(unique_wifi_scan_set);*/
 
+        List<WifiConfiguration> configurations = wifiManager.getConfiguredNetworks(); // 저장된 Wifi 목록들
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo(); // 현재 연결된 WiFi 정보
+        Log.i(TAG, "검색된 결과 개수:"+results.size());
+        for (ScanResult result : results) {
+            if(result.SSID.length() < 1) { // 이름 없으면 skip
+                Log.i(TAG, "SSID 비었음");
+                continue;
+            }
 
-        /*List<WifiConfiguration> configurations = wifiManager.getConfiguredNetworks(); // 저장된 Wifi 목록들
-        Log.i(TAG, "test) ssid:"+configurations.get(0).SSID+", priority:"+configurations.get(0).priority);*/
+            String tmpSSID = "\""+result.SSID+"\""; // 비교용으로 따옴표 붙인 SSID
+            WiFi wifi = new WiFi(result);
 
-        /*mAdapter=new MyAdapter(results);
-        recyclerView.setAdapter(mAdapter);*/
+            if (tmpSSID.equals(wifiInfo.getSSID())) { // 지금 연결된 WiFI인 경우
+                //Log.i(TAG, "현재 연결되어있음:"+result.SSID);
+                wifi.setState(WiFi.WIFI_CONNECTED);
+                wifiList.add(wifi); // 정보 담은 후 저장
+                //scanResults.add(result.SSID); // 중복 확인용으로도 정보 담은 후 리스트에 추가
+                continue;
+            }
+
+            boolean saved = false;
+            for (WifiConfiguration config : configurations) {
+                if (tmpSSID.equals(config.SSID)) { // 저장된 WiFi 목록에 있는 경우
+                    //Log.i(TAG, "이미 저장되어있음:"+result.SSID);
+                    wifi.setState(WiFi.WIFI_SAVED);
+                    wifiList.add(wifi); // 정보 담은 후 저장
+                    saved = true;
+                    break;
+                }
+            }
+            if (saved) // 이미 저장한 경우 skip
+                continue;
+
+            wifiList.add(wifi); // 정보 담은 후 저장
+        }
+
+        wifiRAdapter = new WifiRAdapter(this, wifiList);
+        wifiRAdapter.setHasStableIds(true); // 안깜빡임
+        recyclerView.setAdapter(wifiRAdapter);
     }
 
     private void scanFailure() {    // Wifi검색 실패
@@ -154,8 +211,16 @@ public class WifiListActivity extends AppCompatActivity {
         
         if (checkWifiOnAndConnected()) { // Wi-Fi 유무에 따라 스위치 초기화
             wifiSwitch.setChecked(true);
+            // 바로 스캔 시작
+            boolean success = wifiManager.startScan();
+            if (!success) {
+                Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
+            }
         } else {
             wifiSwitch.setChecked(false);
         }
+
+
     }
+
 }

@@ -44,8 +44,6 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
            // Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             Log.e(TAG, "BLE 지원안됨");
             finish();
-        } else {
-            Log.e(TAG, "BLE 지원됨");
         }
 
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, SETTINGS_MENU) ;
