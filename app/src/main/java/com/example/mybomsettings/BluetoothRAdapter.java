@@ -21,7 +21,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.bluetooth.BluetoothDevice.DEVICE_TYPE_LE;
+import static com.example.mybomsettings.BluetoothListActivity.STATE_CONNECTED;
+import static com.example.mybomsettings.BluetoothListActivity.STATE_CONNECTING;
+import static com.example.mybomsettings.BluetoothListActivity.STATE_DISCONNECTING;
+import static com.example.mybomsettings.BluetoothListActivity.STATE_NONE;
+import static com.example.mybomsettings.BluetoothListActivity.bluetoothGatt;
+import static com.example.mybomsettings.BluetoothListActivity.closeGatt;
 import static com.example.mybomsettings.BluetoothListActivity.connectPairedDevice;
+import static com.example.mybomsettings.BluetoothListActivity.connectSelectedBLEDevice;
+import static com.example.mybomsettings.BluetoothListActivity.disConnectBLEDevice;
 import static com.example.mybomsettings.BluetoothListActivity.disconnectPairedDevice;
 import static com.example.mybomsettings.BluetoothListActivity.unpairDevice;
 
@@ -96,7 +105,10 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                     adb.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            disconnectPairedDevice(myBluetoothList.get(pos).getDevice());
+                            // 연결 해제 시작
+                            disconnectPairedDevice(device); // 일반 BLUETOOTH
+                            disConnectBLEDevice(); // DEVICE_TYPE_LE
+                            closeGatt();
                             dialog.dismiss();
                         }
                     });
@@ -110,25 +122,27 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                     alertDialog.show();
                 } else { // 연결 안되어있는 경우
                     // 연결 시도하기
-                    connectPairedDevice(myBluetoothList.get(pos).getDevice());
+                    connectSelectedBLEDevice(device); // DEVICE_TYPE_LE
+                    connectPairedDevice(device); // 일반 BLUETOOTH
                 }
+
                 /*if (BluetoothListActivity.getState() == STATE_NONE) { // 페어링은 되어있으나 연결이 안되어 있는 경우
-                    *//*textConnectState.setVisibility(View.VISIBLE);
-                    textConnectState.setText("연결중...");*//*
                     connectPairedDevice(myBluetoothList.get(pos).getDevice());
-                    *//*textConnectState.setVisibility(View.VISIBLE);
-                    textConnectState.setText("연결됨");*//*
+                    textConnectState.setVisibility(View.VISIBLE);
+                    textConnectState.setText("연결됨");
                 } else if (BluetoothListActivity.getState() == STATE_CONNECTING) { // 연결 중
-                    ;
-                } else if (BluetoothListActivity.getState() == STATE_CONNECTED) { // 연결 완료된 경우
+                    textConnectState.setVisibility(View.VISIBLE);
+                    textConnectState.setText("연결중...");
+                } else if (BluetoothListActivity.getState() == STATE_DISCONNECTING) { // 연결 완료된 경우
                     //textConnectState.setVisibility(View.GONE);
                     disconnectPairedDevice(myBluetoothList.get(pos).getDevice());
-                } else { // 연결 시도하기
-                    *//*textConnectState.setVisibility(View.VISIBLE);
-                    textConnectState.setText("연결중...");*//*
+                }
+                else { // 연결 시도하기
+                    textConnectState.setVisibility(View.VISIBLE);
+                    textConnectState.setText("연결중...");
                     connectPairedDevice(myBluetoothList.get(pos).getDevice());
-                    *//*textConnectState.setVisibility(View.VISIBLE);
-                    textConnectState.setText("연결됨");*//*
+                    textConnectState.setVisibility(View.VISIBLE);
+                    textConnectState.setText("연결됨");
                 }*/
             }
 
