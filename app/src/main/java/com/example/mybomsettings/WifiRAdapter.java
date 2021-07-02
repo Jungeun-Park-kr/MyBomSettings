@@ -87,16 +87,16 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
             int level = item.getLevel();
             switch(level) {
                 case 1:
-                    wifiLevel.setImageResource(R.drawable.wifi_1_24);
+                    wifiLevel.setImageResource(R.drawable.wifi_1_512);
                     break;
                 case 2:
-                    wifiLevel.setImageResource(R.drawable.wifi_2_24);
+                    wifiLevel.setImageResource(R.drawable.wifi_2_512);
                     break;
                 case 3:
-                    wifiLevel.setImageResource(R.drawable.wifi_3_24);
+                    wifiLevel.setImageResource(R.drawable.wifi_3_512);
                     break;
                 default:
-                    wifiLevel.setImageResource(R.drawable.wifi_0_24);
+                    wifiLevel.setImageResource(R.drawable.wifi_0_512);
             }
             // 연결 상태별 안내 문구
             if (item.getState() == WiFi.WIFI_CONNECTED) {
@@ -132,7 +132,6 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
         // Here we use the information in the list we create to define the views
 //        Log.e(TAG, "onBindViewHolder() 호출, myWiFiList 길이:"+myWiFiList.size());
 
-        TextView name = holder.wifiName;
         holder.setItem(myWiFiList.get(position));
     }
 

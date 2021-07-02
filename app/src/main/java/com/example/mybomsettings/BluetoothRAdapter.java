@@ -28,8 +28,7 @@ import static com.example.mybomsettings.BluetoothListActivity.unpairDevice;
 @SuppressLint("LongLogTag")
 public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.ViewHolder>{
 
-    public static ArrayList<Bluetooth> myBluetoothList;
-    private static BluetoothDevice connected;
+    public ArrayList<Bluetooth> myBluetoothList;
 
     Dialog bluetoothDialog; // 블루투스 기기 클릭시 띄울 다이얼로그
     private static final String TAG = "MyTag:BluetoothRAdapter)";
@@ -135,6 +134,19 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
 
         }
 
+        public void setItem(Bluetooth bluetooth) {
+            if (!myBluetoothList.isEmpty()) {  // 이름 보이기
+                textName.setText(bluetooth.getName());
+            }
+
+            if (bluetooth.getConnected()) { // 연결 상태 보이기
+                // Log.i(TAG, bluetooth.getName()+"<- 현재 연결됨");
+                textConnectState.setText("연결됨");
+                textConnectState.setVisibility(View.VISIBLE);
+            } else {
+                textConnectState.setVisibility(View.GONE);
+            }
+        }
     }
 
 
@@ -158,19 +170,8 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Here we use the information in the list we create to define the views
         Log.e(TAG, "onBindViewHolder() 호출, myBluetoothList 길이:"+myBluetoothList.size());
-        if (!myBluetoothList.isEmpty()) {
-            // 이름 보이기
-            TextView name = holder.textName;
-            name.setText(myBluetoothList.get(position).getName());
-        }
-        TextView connectState = holder.textConnectState;
-        if (myBluetoothList.get(position).getConnected()) { // 연결 되어있는 경우
-            Log.i(TAG, myBluetoothList.get(holder.getAdapterPosition())+"<- 현재 연결됨");
-            connectState.setText("연결됨");
-            connectState.setVisibility(View.VISIBLE);
-        } else {
-            connectState.setVisibility(View.GONE);
-        }
+
+        holder.setItem(myBluetoothList.get(position));
     }
 
     @Override
@@ -181,6 +182,11 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
     @Override
     public long getItemId(int position) {
         return super.getItemId(position);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     private void showBluetoothDialog(View v, int pos) { // 다이얼로그 디자인 및 띄우기
@@ -199,9 +205,10 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
             @Override
             public void onClick(View v) { // 페어링 해제 (저장안함 버튼 클릭)
                 unpairDevice(myBluetoothList.get(pos).getDevice());
+                String tmp = (String) myBluetoothList.get(pos).getName();
                 bluetoothDialog.dismiss(); // 다이얼로그 닫기
-//                myBluetoothList.remove(pos); // 삭제한 디바이스는 목록에서 삭제 (이거 동작안됨)
-                Log.i(TAG, "삭제 완료, bluetoothList길이 :"+myBluetoothList.size());
+                myBluetoothList.remove(pos); // 삭제한 디바이스는 목록에서 삭제 (이거 동작안됨)
+                Log.i(TAG, tmp+"삭제 완료, bluetoothList길이 :"+myBluetoothList.size());
             }
         });
 
