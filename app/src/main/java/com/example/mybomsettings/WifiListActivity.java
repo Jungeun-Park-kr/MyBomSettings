@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static android.net.ConnectivityManager.TYPE_WIFI;
+
 @SuppressLint("LongLogTag")
 public class WifiListActivity extends AppCompatActivity {
 
@@ -39,9 +41,12 @@ public class WifiListActivity extends AppCompatActivity {
 
     // WiFi
     IntentFilter intentFilter = new IntentFilter();
+    IntentFilter wifiIntentFilter = new IntentFilter();
     WifiManager wifiManager;
     ConnectivityManager connManager;
     NetworkInfo mWifi;
+
+    public static boolean isConnected = false;
 
 
     // UI
@@ -64,13 +69,17 @@ public class WifiListActivity extends AppCompatActivity {
         baseContext = getApplicationContext();
 
         connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        mWifi = connManager.getNetworkInfo(TYPE_WIFI);
         initializeAll();
 
         //Wifi Scan 관련
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         getApplicationContext().registerReceiver(wifiScanReceiver, intentFilter);
+        wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        wifiIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        getApplicationContext().registerReceiver(wifiConnectReceiver, wifiIntentFilter);
+
 
         wifiSwitch.setOnCheckedChangeListener(new wifiSwitchListener()); // 블루투스 ON/OFF 스위치 리스너
 
@@ -128,12 +137,39 @@ public class WifiListActivity extends AppCompatActivity {
         }// onReceive()..
     };
 
-    BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
+    BroadcastReceiver wifiConnectReceiver = new BroadcastReceiver() { // wifi 변경 감지
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
+            String action = intent.getAction(); // WifiManager.NETWORK_STATE_CHANGED_ACTION
+            /*Log.i(TAG, action);
+            NetworkInfo networkInfo =
+                    intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            if(networkInfo.isConnected()) {
+                // Wifi is connected
+                Log.d(TAG, "Wifi is connected: " + String.valueOf(networkInfo));
+                isConnected = true;
+            }*/
+
+            if(action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                NetworkInfo networkInfo =
+                        intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                if(networkInfo.isConnected()) {
+                    // Wifi is connected
+                    Log.d(TAG, "Wifi is connected: " + String.valueOf(networkInfo));
+                    isConnected = true;
+                }
+            } else if(action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                NetworkInfo networkInfo =
+                        intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+                if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI &&
+                        ! networkInfo.isConnected()) {
+                    // Wifi is disconnected
+                    Log.d(TAG, "Wifi is disconnected: " + String.valueOf(networkInfo));
+                }
+            }
         }
     };
+
 
     //버튼을 눌렀을 때
     public void clickWifiScan(View view) {
