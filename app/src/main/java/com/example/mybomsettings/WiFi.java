@@ -7,6 +7,7 @@ public class WiFi {
     public static final int WIFI_NONE = 0;
     public static final int WIFI_CONNECTED = 1;
     public static final int WIFI_SAVED = 2;
+    public static final int WIFI_ERROR = 3;
 
     private ScanResult scanResult;
     private int state; // 해당 와이파이 저장 유무

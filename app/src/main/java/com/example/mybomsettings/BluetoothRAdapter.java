@@ -74,7 +74,6 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
             itemView.setOnClickListener(this);
             item.setOnClickListener(this);
             setting.setOnClickListener(this);
-            
         }
 
 

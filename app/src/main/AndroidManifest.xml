@@ -45,7 +45,11 @@
         <activity android:name=".DeviceInfoListActivity"></activity>
 
         <activity android:name=".BluetoothDialogActivity" />
-        <activity android:name=".WifiListActivity" />
+        <activity android:name=".WifiListActivity" >
+            <intent-filter>
+                <action android:name="android.net.wifi.STATE_CHANGE"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".BluetoothListActivity" />
         <activity android:name=".SystemListActivity" />
         <activity android:name=".DisplayListActivity" />
