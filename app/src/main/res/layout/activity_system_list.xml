@@ -175,12 +175,12 @@
             android:layout_marginBottom="15dp"
             android:max="5" />
 
-        <!--   알람소리, 효과음 sharedpreference 사용하기 위한 fragment -->
-        <fragment
+        <!--  (사용 안하기로 함) 알람소리, 효과음 sharedpreference 사용하기 위한 fragment -->
+        <!--<fragment
             android:id="@+id/fragment_sound_settings"
             android:name="com.example.mybomsettings.SystemListActivity$SystemSoundFragment"
             android:layout_width="match_parent"
-            android:layout_height="150dp"/>
+            android:layout_height="150dp"/>-->
 
     </LinearLayout>
 </ScrollView>
