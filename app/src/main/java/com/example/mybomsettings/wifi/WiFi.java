@@ -1,4 +1,4 @@
-package com.example.mybomsettings;
+package com.example.mybomsettings.wifi;
 
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;

@@ -1,8 +1,10 @@
-package com.example.mybomsettings;
+package com.example.mybomsettings.bluetooth;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.mybomsettings.R;
 
 public class BluetoothDialogActivity extends AppCompatActivity {
 

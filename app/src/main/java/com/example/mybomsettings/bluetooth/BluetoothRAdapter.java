@@ -1,4 +1,4 @@
-package com.example.mybomsettings;
+package com.example.mybomsettings.bluetooth;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -18,21 +18,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mybomsettings.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.bluetooth.BluetoothDevice.DEVICE_TYPE_LE;
-import static com.example.mybomsettings.BluetoothListActivity.STATE_CONNECTED;
-import static com.example.mybomsettings.BluetoothListActivity.STATE_CONNECTING;
-import static com.example.mybomsettings.BluetoothListActivity.STATE_DISCONNECTING;
-import static com.example.mybomsettings.BluetoothListActivity.STATE_NONE;
-import static com.example.mybomsettings.BluetoothListActivity.bluetoothGatt;
-import static com.example.mybomsettings.BluetoothListActivity.closeGatt;
-import static com.example.mybomsettings.BluetoothListActivity.connectPairedDevice;
-import static com.example.mybomsettings.BluetoothListActivity.connectSelectedBLEDevice;
-import static com.example.mybomsettings.BluetoothListActivity.disConnectBLEDevice;
-import static com.example.mybomsettings.BluetoothListActivity.disconnectPairedDevice;
-import static com.example.mybomsettings.BluetoothListActivity.unpairDevice;
+import static com.example.mybomsettings.bluetooth.BluetoothListActivity.closeGatt;
+import static com.example.mybomsettings.bluetooth.BluetoothListActivity.connectPairedDevice;
+import static com.example.mybomsettings.bluetooth.BluetoothListActivity.connectSelectedBLEDevice;
+import static com.example.mybomsettings.bluetooth.BluetoothListActivity.disConnectBLEDevice;
+import static com.example.mybomsettings.bluetooth.BluetoothListActivity.disconnectPairedDevice;
+import static com.example.mybomsettings.bluetooth.BluetoothListActivity.unpairDevice;
 
 @SuppressLint("LongLogTag")
 public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.ViewHolder>{
@@ -105,9 +101,16 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // 연결 해제 시작
-                            disconnectPairedDevice(device); // 일반 BLUETOOTH
-                            disConnectBLEDevice(); // DEVICE_TYPE_LE
-                            closeGatt();
+                            if (device.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
+                                Log.i(TAG, "DEVICE_TYPE_LE 연결 해제");
+                                disConnectBLEDevice(device); // DEVICE_TYPE_LE
+                                closeGatt();
+                            } else {
+                                Log.i(TAG, "일반 블루투스 연결 해제");
+                                disconnectPairedDevice(device); // 일반 BLUETOOTH
+                                disConnectBLEDevice(device); // DEVICE_TYPE_LE
+                                closeGatt();
+                            }
                             dialog.dismiss();
                         }
                     });
@@ -121,8 +124,8 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                     alertDialog.show();
                 } else { // 연결 안되어있는 경우
                     // 연결 시도하기
-                    connectSelectedBLEDevice(device); // DEVICE_TYPE_LE
                     connectPairedDevice(device); // 일반 BLUETOOTH
+                    connectSelectedBLEDevice(device); // DEVICE_TYPE_LE
                 }
 
                 /*if (BluetoothListActivity.getState() == STATE_NONE) { // 페어링은 되어있으나 연결이 안되어 있는 경우
@@ -182,8 +185,6 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Here we use the information in the list we create to define the views
-        Log.e(TAG, "onBindViewHolder() 호출, myBluetoothList 길이:"+myBluetoothList.size());
-
         holder.setItem(myBluetoothList.get(position));
     }
 

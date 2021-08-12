@@ -19,6 +19,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.example.mybomsettings.bluetooth.BluetoothListActivity;
+import com.example.mybomsettings.bluetooth.BluetoothService;
+import com.example.mybomsettings.wifi.WifiListActivity;
+
 public class MainActivity extends AppCompatActivity {
 
 //    static final String[] SETTINGS_MENU = {"시스템 설정", "디스플레이", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
@@ -91,9 +95,9 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
             startActivity(intent);
         }
 
-        /*// Bluetooth Service 시작
+        // Bluetooth Service 시작
         Intent intent = new Intent(this, BluetoothService.class);
-        startService(intent);*/
+        startService(intent);
 
     }
 
