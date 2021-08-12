@@ -1,15 +1,11 @@
-package com.example.mybomsettings;
+package com.example.mybomsettings.wifi;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.DialogInterface;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +20,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mybomsettings.R;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
 
-import static com.example.mybomsettings.WiFi.WIFI_ERROR;
-import static com.example.mybomsettings.WifiListActivity.isConnected;
+import static com.example.mybomsettings.wifi.WifiListActivity.isConnected;
 
 @SuppressLint("LongLogTag")
 public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{

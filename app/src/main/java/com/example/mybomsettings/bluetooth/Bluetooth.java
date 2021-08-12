@@ -1,4 +1,4 @@
-package com.example.mybomsettings;
+package com.example.mybomsettings.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 

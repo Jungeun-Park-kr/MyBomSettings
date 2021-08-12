@@ -1,6 +1,5 @@
-package com.example.mybomsettings;
+package com.example.mybomsettings.wifi;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,21 +14,18 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
+import com.example.mybomsettings.R;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static android.net.ConnectivityManager.TYPE_WIFI;
 
