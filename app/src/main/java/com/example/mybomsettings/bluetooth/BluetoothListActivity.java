@@ -68,7 +68,7 @@ public class BluetoothListActivity extends AppCompatActivity {
     BluetoothDevice paired;
     public static BluetoothDevice connectedDevice;
 
-    BluetoothSocket bluetoothSocket;
+    private static BluetoothSocket bluetoothSocket;
     static Handler bluetoothHandler;
     ConnectedThread threadConnectedBluetooth;
 
@@ -367,6 +367,7 @@ public class BluetoothListActivity extends AppCompatActivity {
 
         bluetoothAdapter.startDiscovery(); //  블루투스 검색 시작
     }
+
     // 페어링 된 블루투스 연결
     public void pairSelectedDevice(BluetoothDevice selectedDevice) {
         Log.i(TAG,"Begin connect");
@@ -419,7 +420,7 @@ public class BluetoothListActivity extends AppCompatActivity {
      * This method will be used during shutdown() to ensure that the connection is properly closed during a shutdown.
      * @return
      */
-    private void resetConnection() {
+    private static void resetConnection() {
         if (mBTInputStream != null) {
             try {mBTInputStream.close();} catch (Exception e) {}
             mBTInputStream = null;
@@ -482,12 +483,15 @@ public class BluetoothListActivity extends AppCompatActivity {
         if (mConnectThread != null) {
             mConnectThread.cancel();
             mConnectThread = null;
+            Log.i(TAG, "connectThread.cancel()");
         }
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {
             mConnectedThread.cancel();
             mConnectedThread = null;
+            Log.i(TAG, "connectedThread.cancel()");
         }
+        resetConnection();
         //setState(STATE_NONE);
     }
 
@@ -747,7 +751,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                 }
             }
             // 아래 브로드캐스트 처리는 BluetoothService.java에서 해줌
-            else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) { //연결됨
+            else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) { // 연결됨
                 connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // Log.i(TAG, "연결된 애 있음. 갱신 시도..."+ connectedDevice.getName());
                 //setDeviceState(action);
@@ -761,7 +765,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                             break;
                     }
                 }
-            } else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) { //연결해제 요청
+            } else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) { // 연결해제 요청
                 connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // Log.i(TAG, "연결해제 될 애 있음. 갱신 시도..." + connectedDevice.getName());
                 //setDeviceState(action);
@@ -839,18 +843,19 @@ public class BluetoothListActivity extends AppCompatActivity {
         };
 
 
+        // device가 직접 bluetoothGattServer가 되어 블루투스 연결
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
            bluetoothGatt = device.connectGatt(baseContext, false, bluetoothGattCallback, BluetoothDevice.TRANSPORT_AUTO);
         } else {
             bluetoothGatt = device.connectGatt(baseContext, false, bluetoothGattCallback);
         }
 
-
-        if (bluetoothManager == null)
+        // bluetoothGattServer를 만든 후 블루투스 연결
+        /*if (bluetoothManager == null)
             bluetoothManager = (BluetoothManager)baseContext.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothGattServer = bluetoothManager.openGattServer(baseContext, bluetoothGattServerCallback);
         BluetoothGattService service = new BluetoothGattService(MY_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-        bluetoothGattServer.addService(service);
+        bluetoothGattServer.addService(service);*/
 
     }
 

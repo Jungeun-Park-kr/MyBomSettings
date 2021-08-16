@@ -99,9 +99,11 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                     adb.setMessage(myBluetoothList.get(pos).getName()+"와(과) 연결이 끊어집니다.");
                     adb.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // 연결 해제 시작
-                            if (device.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
+                        public void onClick(DialogInterface dialog, int which) { // 연결 해제 시작
+                            disconnectPairedDevice(device); // 일반 BLUETOOTH
+                            disConnectBLEDevice(device); // DEVICE_TYPE_LE
+                            closeGatt();
+                           /*if (device.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
                                 Log.i(TAG, "DEVICE_TYPE_LE 연결 해제");
                                 disConnectBLEDevice(device); // DEVICE_TYPE_LE
                                 closeGatt();
@@ -109,8 +111,8 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                                 Log.i(TAG, "일반 블루투스 연결 해제");
                                 disconnectPairedDevice(device); // 일반 BLUETOOTH
                                 disConnectBLEDevice(device); // DEVICE_TYPE_LE
-                                closeGatt();
-                            }
+                               closeGatt();
+                            }*/
                             dialog.dismiss();
                         }
                     });
@@ -123,29 +125,10 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                     AlertDialog alertDialog = adb.create();
                     alertDialog.show();
                 } else { // 연결 안되어있는 경우
-                    // 연결 시도하기
+                    // 연결 시도하기 (두개 다 해줘야 연결됨)
                     connectPairedDevice(device); // 일반 BLUETOOTH
                     connectSelectedBLEDevice(device); // DEVICE_TYPE_LE
                 }
-
-                /*if (BluetoothListActivity.getState() == STATE_NONE) { // 페어링은 되어있으나 연결이 안되어 있는 경우
-                    connectPairedDevice(myBluetoothList.get(pos).getDevice());
-                    textConnectState.setVisibility(View.VISIBLE);
-                    textConnectState.setText("연결됨");
-                } else if (BluetoothListActivity.getState() == STATE_CONNECTING) { // 연결 중
-                    textConnectState.setVisibility(View.VISIBLE);
-                    textConnectState.setText("연결중...");
-                } else if (BluetoothListActivity.getState() == STATE_DISCONNECTING) { // 연결 완료된 경우
-                    //textConnectState.setVisibility(View.GONE);
-                    disconnectPairedDevice(myBluetoothList.get(pos).getDevice());
-                }
-                else { // 연결 시도하기
-                    textConnectState.setVisibility(View.VISIBLE);
-                    textConnectState.setText("연결중...");
-                    connectPairedDevice(myBluetoothList.get(pos).getDevice());
-                    textConnectState.setVisibility(View.VISIBLE);
-                    textConnectState.setText("연결됨");
-                }*/
             }
 
         }
