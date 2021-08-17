@@ -121,7 +121,7 @@ public class BluetoothListActivity extends AppCompatActivity {
     Button searchBtn; // 블루투스 검색 버튼
     LinearLayout registeredLayout; // 등록된 디바이스 레이아웃
     LinearLayout availableLayout; // 사용 가능 디바이스 레이아웃
-    public static LottieAnimationView lottieAnimationView; //(로딩모양)측정중 로띠
+    public static LottieAnimationView lottieAnimationView; //(로딩모양) 검색중 로띠
     private static BluetoothGattServerCallback bluetoothGattServerCallback;
     private static BluetoothGattServer bluetoothGattServer;
     private static BluetoothGattCallback bluetoothGattCallback;

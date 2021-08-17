@@ -14,7 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (action.equals("android.intent.action.BOOT_COMPLETED") || action.equals("android.intent.action.REBOOT")) {
-            Log.e(TAG, "전원 켜짐");
+            // Log.e(TAG, "전원 켜짐");
             Intent intentBoot = new Intent(context, BluetoothService.class);
             context.startService(intentBoot);
         }
