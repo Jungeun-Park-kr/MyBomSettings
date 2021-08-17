@@ -33,6 +33,8 @@ import java.util.List;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION;
 import static android.net.wifi.WifiManager.SUPPLICANT_STATE_CHANGED_ACTION;
+import static com.example.mybomsettings.wifi.WifiRAdapter.connectedWiFiPosition;
+import static com.example.mybomsettings.wifi.WifiRAdapter.connectingWiFiPosition;
 
 @SuppressLint("LongLogTag")
 public class WifiListActivity extends AppCompatActivity {
@@ -156,15 +158,6 @@ public class WifiListActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction(); // WifiManager.NETWORK_STATE_CHANGED_ACTION
-            /*Log.i(TAG, action);
-            NetworkInfo networkInfo =
-                    intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-            if(networkInfo.isConnected()) {
-                // Wifi is connected
-                Log.d(TAG, "Wifi is connected: " + String.valueOf(networkInfo));
-                isConnected = true;
-            }*/
-
             if(action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                 NetworkInfo networkInfo =
                         intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
@@ -175,11 +168,15 @@ public class WifiListActivity extends AppCompatActivity {
                     if (wifiList != null) {
                         String ssid = networkInfo.getExtraInfo();
                         for (WiFi wifi : wifiList) {
-                            if (wifi.getSsid() == ssid) { // 새로 연결된 경우
-                                wifi.setState(WiFi.WIFI_CONNECTED);
+                            if (ssid.equals("\""+wifi.getSsid()+"\"")) { // 새로 연결된 경우 텍스트 변경
+                                if (connectedWiFiPosition != -1)
+                                    wifiList.get(connectedWiFiPosition).setState(WiFi.WIFI_SAVED); // 기존에 연결됨 -> 저장됨
+                                wifi.setState(WiFi.WIFI_CONNECTED); // 새롭게 연결된 WIFI 텍스트 변경
+                                connectedWiFiPosition = wifiList.indexOf(wifi);
                                 break;
                             }
                         }
+                        wifiRAdapter.notifyDataSetChanged();
                     }
 
                 }
@@ -193,22 +190,28 @@ public class WifiListActivity extends AppCompatActivity {
                     if (wifiList != null) {
                         String ssid = networkInfo.getExtraInfo();
                         for (WiFi wifi : wifiList) {
-                            if (wifi.getSsid() == ssid) { // 새로 연결된 경우
+//                            Log.d(TAG, "비교중 :"+wifi.getSsid()+" - "+ssid);
+                            if (ssid.equals("\""+wifi.getSsid()+"\"")) { // 연결 해제된 경우 텍스트 변경
                                 wifi.setState(WiFi.WIFI_SAVED);
                                 break;
                             }
                         }
+                        wifiRAdapter.notifyDataSetChanged();
                     }
                 }
             } else if (action.equals(SUPPLICANT_STATE_CHANGED_ACTION)) {
-                Log.d(TAG, "Wifi state changed");
+               // Log.d(TAG, "Wifi state changed");
             } else if (action.equals(SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
-                Log.d(TAG, "Wifi connection changed");
-
+               // Log.d(TAG, "Wifi connection changed");
             }
             int supl_error=intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, -1);
-            if(supl_error==WifiManager.ERROR_AUTHENTICATING) {
-                Log.i("ERROR_AUTHENTICATING", "ERROR_AUTHENTICATING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            if(supl_error == WifiManager.ERROR_AUTHENTICATING) {
+                Log.e(TAG, "ERROR_AUTHENTICATING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                if (connectingWiFiPosition != -1) { // 현재 연결중인 WiFi의 비밀번호가 틀린 경우
+                    Log.i(TAG, "인증 에러난것 텍스트 변경");
+                    wifiList.get(connectingWiFiPosition).setState(WiFi.WIFI_AUTH_ERROR);
+                    wifiRAdapter.notifyDataSetChanged();
+                }
             }
         }
     };
@@ -232,19 +235,14 @@ public class WifiListActivity extends AppCompatActivity {
 
 
     private void scanSuccess() {    // Wifi검색 성공
-        wifiList = new ArrayList<>();
+        wifiList = new ArrayList<>(); // 전체 WiFi 목록
         List<ScanResult> results = wifiManager.getScanResults(); // 검색된 WiFi 목록들
-        /*// 중복 방지
-        List<ScanResult> raw_wifi_scan_list = wifiManager.getScanResults();
-        Set<ScanResult> unique_wifi_scan_set = new HashSet(raw_wifi_scan_list);
-        List<ScanResult> results = new ArrayList(unique_wifi_scan_set);*/
-
         List<WifiConfiguration> configurations = wifiManager.getConfiguredNetworks(); // 저장된 Wifi 목록들
         WifiInfo wifiInfo = wifiManager.getConnectionInfo(); // 현재 연결된 WiFi 정보
         Log.i(TAG, "검색된 결과 개수:"+results.size());
         for (ScanResult result : results) {
-            if(result.SSID.length() < 1) { // 이름 없으면 skip
-                Log.i(TAG, "SSID 비었음");
+            if(result.SSID.length() < 1) { // 이름 없으면 skip (왜 뜨는지는 모르겠지만 이름 없는 WiFi가 같이 검색되버림)
+                // Log.i(TAG, "SSID 비었음");
                 continue;
             }
 
@@ -254,23 +252,28 @@ public class WifiListActivity extends AppCompatActivity {
             if (tmpSSID.equals(wifiInfo.getSSID())) { // 지금 연결된 WiFI인 경우
                 //Log.i(TAG, "현재 연결되어있음:"+result.SSID);
                 wifi.setState(WiFi.WIFI_CONNECTED);
-                wifiList.add(wifi); // 정보 담은 후 저장
-                //scanResults.add(result.SSID); // 중복 확인용으로도 정보 담은 후 리스트에 추가
+                wifiList.add(0, wifi); // 정보 담은 후 저장 (제일 상위에 넣기)
                 continue;
             }
 
             boolean saved = false;
             for (WifiConfiguration config : configurations) {
                 if (tmpSSID.equals(config.SSID)) { // 저장된 WiFi 목록에 있는 경우
-                    Log.i(TAG, "이미 저장되어있음:"+result.SSID+", status:"+config.status);
+                    // Log.i(TAG, "이미 저장되어있음:"+result.SSID+", status:"+config.status);
                     wifi.setState(WiFi.WIFI_SAVED);
-                    wifiList.add(wifi); // 정보 담은 후 저장
+                    if (wifiList.size() < 1) {
+                        wifiList.add(0, wifi); // 정보 담은 후 저장 (연결된 WiFi없는 경우 최상위에 넣기)
+                    } else {
+                        wifiList.add(1, wifi); // 정보 담은 후 저장 (상위에 넣기)
+                    }
                     saved = true;
                     break;
                 }
             }
             if (saved) // 이미 저장한 경우 skip
                 continue;
+
+
 
             wifiList.add(wifi); // 정보 담은 후 저장
         }
