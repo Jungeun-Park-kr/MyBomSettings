@@ -66,6 +66,23 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/tv_wifi_scanning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="invisible"
+                    android:text="검색중..."/>
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottie_wifi_loading"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="5dp"
+                    android:foregroundGravity="fill"/>
+
                 <Button
                     android:id="@+id/btn_wifi_search"
                     android:layout_width="70dp"

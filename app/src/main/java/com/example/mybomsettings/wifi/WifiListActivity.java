@@ -20,7 +20,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieDrawable;
 import com.example.mybomsettings.R;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -28,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.wifi.WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION;
+import static android.net.wifi.WifiManager.SUPPLICANT_STATE_CHANGED_ACTION;
 
 @SuppressLint("LongLogTag")
 public class WifiListActivity extends AppCompatActivity {
@@ -42,7 +47,7 @@ public class WifiListActivity extends AppCompatActivity {
     ConnectivityManager connManager;
     NetworkInfo mWifi;
 
-    public static boolean isConnected = false;
+    public static boolean isConnected = false; // Wi-Fi 연결 유무
 
 
     // UI
@@ -51,6 +56,8 @@ public class WifiListActivity extends AppCompatActivity {
     Button searchWifiBtn;
     Button addWifiBtn;
     LinearLayout contents; // WiFi on/off에 따라 본문 가릴때 사용
+    TextView scanningTV; // WiFi 검색중 텍스트
+    private static LottieAnimationView lottieAnimationView; //(로딩모양) 검색중 로띠
     
     // Adapter
     WifiRAdapter wifiRAdapter;
@@ -68,14 +75,17 @@ public class WifiListActivity extends AppCompatActivity {
         mWifi = connManager.getNetworkInfo(TYPE_WIFI);
         initializeAll();
 
-        //Wifi Scan 관련
+        // Wifi Scan 관련 리시버
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         getApplicationContext().registerReceiver(wifiScanReceiver, intentFilter);
+        // WiFi Connect 관련 리시버
         wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         wifiIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        wifiIntentFilter.addAction(SUPPLICANT_STATE_CHANGED_ACTION);
+        wifiIntentFilter.addAction(SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        wifiIntentFilter.addAction(WifiManager.EXTRA_SUPPLICANT_ERROR);
         getApplicationContext().registerReceiver(wifiConnectReceiver, wifiIntentFilter);
-
 
         wifiSwitch.setOnCheckedChangeListener(new wifiSwitchListener()); // 블루투스 ON/OFF 스위치 리스너
 
@@ -89,14 +99,23 @@ public class WifiListActivity extends AppCompatActivity {
                 wifiManager.setWifiEnabled(true);
                 contents.setVisibility(View.VISIBLE);
 
+                Log.e(TAG, "스위치ON 감지, WiFi 스캔 시작");
                 // 바로 스캔 시작
                 boolean success = wifiManager.startScan();
+                // 애니메이션
+                lottieAnimationView.setVisibility(View.VISIBLE);
+                setUpAnimation(lottieAnimationView);
+                scanningTV.setVisibility(View.VISIBLE);
                 if (!success) {
-                    Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
+                    scanningTV.setVisibility(View.INVISIBLE);
+                    lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
+                    Log.e(TAG, "Wifi Scan에 실패하였습니다.");
                 }
             } else { // 스위치 OFF
                 wifiManager.setWifiEnabled(false);
                 contents.setVisibility(View.GONE);
+                scanningTV.setVisibility(View.INVISIBLE);
+                lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
             }
         }
     }
@@ -153,15 +172,43 @@ public class WifiListActivity extends AppCompatActivity {
                     // Wifi is connected
                     Log.d(TAG, "Wifi is connected: " + String.valueOf(networkInfo));
                     isConnected = true;
+                    if (wifiList != null) {
+                        String ssid = networkInfo.getExtraInfo();
+                        for (WiFi wifi : wifiList) {
+                            if (wifi.getSsid() == ssid) { // 새로 연결된 경우
+                                wifi.setState(WiFi.WIFI_CONNECTED);
+                                break;
+                            }
+                        }
+                    }
+
                 }
             } else if(action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
                 NetworkInfo networkInfo =
                         intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-                if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI &&
-                        ! networkInfo.isConnected()) {
+                if(networkInfo != null && (networkInfo.getType() == ConnectivityManager.TYPE_WIFI &&
+                        ! networkInfo.isConnected())) {
                     // Wifi is disconnected
                     Log.d(TAG, "Wifi is disconnected: " + String.valueOf(networkInfo));
+                    if (wifiList != null) {
+                        String ssid = networkInfo.getExtraInfo();
+                        for (WiFi wifi : wifiList) {
+                            if (wifi.getSsid() == ssid) { // 새로 연결된 경우
+                                wifi.setState(WiFi.WIFI_SAVED);
+                                break;
+                            }
+                        }
+                    }
                 }
+            } else if (action.equals(SUPPLICANT_STATE_CHANGED_ACTION)) {
+                Log.d(TAG, "Wifi state changed");
+            } else if (action.equals(SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
+                Log.d(TAG, "Wifi connection changed");
+
+            }
+            int supl_error=intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, -1);
+            if(supl_error==WifiManager.ERROR_AUTHENTICATING) {
+                Log.i("ERROR_AUTHENTICATING", "ERROR_AUTHENTICATING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             }
         }
     };
@@ -171,7 +218,13 @@ public class WifiListActivity extends AppCompatActivity {
     public void clickWifiScan(View view) {
         //getApplicationContext().registerReceiver(wifiScanReceiver, intentFilter);
         boolean success = wifiManager.startScan();
+        // 애니메이션
+        lottieAnimationView.setVisibility(View.VISIBLE);
+        scanningTV.setVisibility(View.VISIBLE);
+        setUpAnimation(lottieAnimationView);
         if (!success) {
+            scanningTV.setVisibility(View.INVISIBLE);
+            lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
             Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
         }
     }// clickWifiScan()..
@@ -209,7 +262,7 @@ public class WifiListActivity extends AppCompatActivity {
             boolean saved = false;
             for (WifiConfiguration config : configurations) {
                 if (tmpSSID.equals(config.SSID)) { // 저장된 WiFi 목록에 있는 경우
-                    //Log.i(TAG, "이미 저장되어있음:"+result.SSID);
+                    Log.i(TAG, "이미 저장되어있음:"+result.SSID+", status:"+config.status);
                     wifi.setState(WiFi.WIFI_SAVED);
                     wifiList.add(wifi); // 정보 담은 후 저장
                     saved = true;
@@ -225,12 +278,16 @@ public class WifiListActivity extends AppCompatActivity {
         wifiRAdapter = new WifiRAdapter(this, wifiList);
         wifiRAdapter.setHasStableIds(true); // 안깜빡임
         recyclerView.setAdapter(wifiRAdapter);
+        lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
+        scanningTV.setVisibility(View.INVISIBLE);
     }
 
     private void scanFailure() {    // Wifi검색 실패
         // handle failure: new scan did NOT succeed
         // consider using old scan results: these are the OLD results!
         List<ScanResult> results = wifiManager.getScanResults();
+        scanningTV.setVisibility(View.INVISIBLE);
+        lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
 //  ... potentially use older scan results ...
     }
 
@@ -240,19 +297,36 @@ public class WifiListActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerview_wifi);
         searchWifiBtn = findViewById(R.id.btn_wifi_search);
         addWifiBtn = findViewById(R.id.btn_wifi_add);
+        lottieAnimationView = findViewById(R.id.lottie_wifi_loading);
+        scanningTV = findViewById(R.id.tv_wifi_scanning);
         
         if (checkWifiOnAndConnected()) { // Wi-Fi 유무에 따라 스위치 초기화
             wifiSwitch.setChecked(true);
             // 바로 스캔 시작
             boolean success = wifiManager.startScan();
+            // 애니메이션
+            scanningTV.setVisibility(View.VISIBLE);
+            lottieAnimationView.setVisibility(View.VISIBLE);
+            setUpAnimation(lottieAnimationView);
             if (!success) {
+                scanningTV.setVisibility(View.INVISIBLE);
+                lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
                 Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
             }
         } else {
+            scanningTV.setVisibility(View.INVISIBLE);
             wifiSwitch.setChecked(false);
         }
 
+    }
 
+    private void setUpAnimation(LottieAnimationView animview) { //로띠 애니메이션 설정
+        //재생할 애니메이션
+        animview.setAnimation("lottie_loading.json");
+        //반복횟수 지정 : 무한
+        animview.setRepeatCount(LottieDrawable.INFINITE); //아니면 횟수 지정
+        //시작
+        animview.playAnimation();
     }
 
 }
