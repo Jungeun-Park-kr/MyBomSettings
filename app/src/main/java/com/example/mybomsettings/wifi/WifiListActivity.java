@@ -58,7 +58,7 @@ public class WifiListActivity extends AppCompatActivity {
     Button searchWifiBtn;
     Button addWifiBtn;
     LinearLayout contents; // WiFi on/off에 따라 본문 가릴때 사용
-    TextView scanningTV; // WiFi 검색중 텍스트
+    TextView scanningTV, errorTV; // WiFi 검색중 텍스트, WiFi 꺼져있을때 안내 텍스트
     private static LottieAnimationView lottieAnimationView; //(로딩모양) 검색중 로띠
     
     // Adapter
@@ -99,25 +99,13 @@ public class WifiListActivity extends AppCompatActivity {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (isChecked && !checkWifiOnAndConnected()) { // 스위치 ON
                 wifiManager.setWifiEnabled(true);
-                contents.setVisibility(View.VISIBLE);
-
-                Log.e(TAG, "스위치ON 감지, WiFi 스캔 시작");
-                // 바로 스캔 시작
-                boolean success = wifiManager.startScan();
-                // 애니메이션
-                lottieAnimationView.setVisibility(View.VISIBLE);
-                setUpAnimation(lottieAnimationView);
-                scanningTV.setVisibility(View.VISIBLE);
-                if (!success) {
-                    scanningTV.setVisibility(View.INVISIBLE);
-                    lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
-                    Log.e(TAG, "Wifi Scan에 실패하였습니다.");
-                }
+                Log.e(TAG, "스위치ON 감지");
+                clickWifiScan(buttonView); // 바로 스캔 시작
             } else { // 스위치 OFF
                 wifiManager.setWifiEnabled(false);
+                errorTV.setVisibility(View.VISIBLE);
                 contents.setVisibility(View.GONE);
-                scanningTV.setVisibility(View.INVISIBLE);
-                lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
+                lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료*/
             }
         }
     }
@@ -220,7 +208,10 @@ public class WifiListActivity extends AppCompatActivity {
     //버튼을 눌렀을 때
     public void clickWifiScan(View view) {
         //getApplicationContext().registerReceiver(wifiScanReceiver, intentFilter);
+        Log.e(TAG, "WiFi 스캔 시작");
         boolean success = wifiManager.startScan();
+        contents.setVisibility(View.VISIBLE);
+        errorTV.setVisibility(View.GONE);
         // 애니메이션
         lottieAnimationView.setVisibility(View.VISIBLE);
         scanningTV.setVisibility(View.VISIBLE);
@@ -302,8 +293,11 @@ public class WifiListActivity extends AppCompatActivity {
         addWifiBtn = findViewById(R.id.btn_wifi_add);
         lottieAnimationView = findViewById(R.id.lottie_wifi_loading);
         scanningTV = findViewById(R.id.tv_wifi_scanning);
+        errorTV = findViewById(R.id.wifi_error_msg);
         
         if (checkWifiOnAndConnected()) { // Wi-Fi 유무에 따라 스위치 초기화
+            errorTV.setVisibility(View.GONE);
+            contents.setVisibility(View.VISIBLE);
             wifiSwitch.setChecked(true);
             // 바로 스캔 시작
             boolean success = wifiManager.startScan();
@@ -317,8 +311,10 @@ public class WifiListActivity extends AppCompatActivity {
                 Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
             }
         } else {
-            scanningTV.setVisibility(View.INVISIBLE);
             wifiSwitch.setChecked(false);
+            errorTV.setVisibility(View.VISIBLE);
+            contents.setVisibility(View.GONE);
+            lottieAnimationView.setVisibility(View.INVISIBLE);
         }
 
     }

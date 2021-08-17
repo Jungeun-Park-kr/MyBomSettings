@@ -36,6 +36,16 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/wifi_error_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text = "사용 가능한 네트워크를 보려면 Wi-Fi를 켜세요."
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="15sp"
+            android:gravity="center"
+            android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
