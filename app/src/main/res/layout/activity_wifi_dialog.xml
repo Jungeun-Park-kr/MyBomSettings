@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
+    tools:context=".wifi.WifiDialogActivity">
+
+    <TextView
+        android:id="@+id/tv_dialog_wifi_ssid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:text="WIFI SSID명"
+        android:textColor="@color/black"
+        android:layout_marginBottom="10dp"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:text="상태"/>
+    <TextView
+        android:id="@+id/tv_dialog_wifi_state"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="XXX"
+        android:textSize="13sp" 
+        android:textStyle="bold"
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:text="신호 강도"/>
+    <TextView
+        android:id="@+id/tv_dialog_wifi_level"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="XXX"
+        android:textSize="13sp" 
+        android:textStyle="bold"
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:text="링크 속도"/>
+    <TextView
+        android:id="@+id/tv_dialog_wifi_link_speed"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="XXX"
+        android:textSize="13sp" 
+        android:textStyle="bold"
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:text="빈도"/>
+    <TextView
+        android:id="@+id/tv_dialog_wifi_frequency"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="XXX"
+        android:textSize="13sp" 
+        android:textStyle="bold"
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:text="보안"/>
+    <TextView
+        android:id="@+id/tv_dialog_wifi_security_protocol"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="XXX"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="5dp"/>
+    
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/tv_dialog_wifi_forget"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/teal_200"
+            android:textSize="13sp"
+            android:text="저장 안함"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/tv_dialog_wifi_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/teal_200"
+            android:textSize="13sp"
+            android:gravity="end"
+            android:text="취 소"/>
+    </LinearLayout>
+
+
+</LinearLayout>

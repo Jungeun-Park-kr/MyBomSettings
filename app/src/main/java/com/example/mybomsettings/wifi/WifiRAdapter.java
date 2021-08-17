@@ -11,6 +11,7 @@ import android.net.NetworkRequest;
 import android.net.wifi.ScanResult;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +32,7 @@ import com.example.mybomsettings.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
 import static com.example.mybomsettings.wifi.WifiListActivity.isConnected;
 
 @SuppressLint("LongLogTag")
@@ -85,7 +87,7 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
             if (state == WiFi.WIFI_CONNECTED) { // 현재 연결중
                 connectedDialog = new Dialog(v.getContext());
                 connectedDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                //connectedDialog.setContentView();
+                connectedDialog.setContentView(R.layout.activity_wifi_dialog);
                 showConnectedDialog(v, pos);
             } else if (state == WiFi.WIFI_SAVED) { // 저장됨
                 showSaveDialog(v, pos);
@@ -183,9 +185,104 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
         return position;
     }
 
+    @SuppressLint("SetTextI18n")
     private void showConnectedDialog(View v, int pos) { // 연결된 WiFi 다이얼로그
-        //connectedDialog.show();
-        // 다시 한번 더 연결 처리 in here
+        Context baseContext = v.getContext();
+        String networkSSID = myWiFiList.get(pos).getSsid();
+        ScanResult scanResult = myWiFiList.get(pos).getScanResult();
+
+        connectedDialog.show();
+
+        TextView wifi_tv = connectedDialog.findViewById(R.id.tv_dialog_wifi_ssid);
+        TextView state_tv = connectedDialog.findViewById(R.id.tv_dialog_wifi_state);
+        TextView level_tv = connectedDialog.findViewById(R.id.tv_dialog_wifi_level);
+        TextView link_speed_tv = connectedDialog.findViewById(R.id.tv_dialog_wifi_link_speed);
+        TextView frequency_tv = connectedDialog.findViewById(R.id.tv_dialog_wifi_frequency);
+        TextView security_protocol_tv = connectedDialog.findViewById(R.id.tv_dialog_wifi_security_protocol);
+        TextView forget_tv = connectedDialog.findViewById(R.id.tv_dialog_wifi_forget);
+        TextView cancel_tv = connectedDialog.findViewById(R.id.tv_dialog_wifi_cancel);
+
+        // WiFi 이름
+        wifi_tv.setText(networkSSID);
+
+        // 현재 연결된 WiFi 정보
+        WifiManager wifiManager = (WifiManager)baseContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        if (wifiInfo.getSSID().equals("\"" +networkSSID+"\"")) {
+            state_tv.setText("연결됨"); // 연결 상태
+            link_speed_tv.setText(wifiInfo.getLinkSpeed()+" Mbps"); // 링크 속도
+            frequency_tv.setText(wifiInfo.getFrequency()+" MHz"); // 빈도
+            security_protocol_tv.setText(scanResult.capabilities); // 보안
+            int level = WifiManager.calculateSignalLevel(wifiInfo.getRssi(), 4); // 신호 강도 (0~4단계)
+            switch(level) { // 신호 강도 텍스트로 변경
+                case 0:
+                    level_tv.setText("매우 나쁨");
+                    break;
+                case 1:
+                    level_tv.setText("나쁨");
+                    break;
+                case 2:
+                    level_tv.setText("보통");
+                    break;
+                case 3:
+                    level_tv.setText("좋음");
+                    break;
+                case 4:
+                    level_tv.setText("매우 좋음");
+                    break;
+            }
+        } else { // 오류 (연결됨 표시된 WiFi와 현재 연결된 WiFi 정보 불일치)
+            AlertDialog.Builder failDialog = new AlertDialog.Builder(baseContext);
+            failDialog.setTitle("현재 연결된 WiFi정보를 가져오는데 실패했습니다. WiFi 재검색 후 다시 시도해주세요");
+            failDialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ;
+                }
+            });
+            connectedDialog.dismiss();
+            failDialog.show();
+            return ;
+        }
+
+        forget_tv.setOnClickListener(new View.OnClickListener() { // 저장 안 함 버튼
+            @Override
+            public void onClick(View v) {
+                int netId = -1;
+                for (WifiConfiguration tmp : wifiManager.getConfiguredNetworks()) {
+                    if (tmp.SSID.equals("\"" +networkSSID+"\"")) {
+                        // Log.i(TAG, "똑같은거 찾음:"+networkSSID);
+                        netId = tmp.networkId;
+                        break;
+                    }
+                }
+                if (netId != -1 && wifiManager.removeNetwork(netId)) { // 저장된 WiFi 목록에서 삭제
+                    myWiFiList.get(pos).setState(WiFi.WIFI_NONE);
+                    notifyDataSetChanged();
+                    Log.i(TAG, "저장 안 함 버튼 누르고 삭제 함");
+                    connectedDialog.dismiss(); // 다이얼로그 닫기
+                } else { // 삭제 실패
+                    connectedDialog.dismiss(); // 다이얼로그 닫기
+                    AlertDialog.Builder failDialog = new AlertDialog.Builder(baseContext);
+                    failDialog.setTitle("WiFi를 저장 해제하는 동안 오류가 발생했습니다. 다시 시도해주세요");
+                    failDialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ;
+                        }
+                    });
+                    failDialog.show();
+                }
+            }
+        });
+
+        cancel_tv.setOnClickListener(new View.OnClickListener() { // 닫기 버튼
+            @Override
+            public void onClick(View v) {
+                connectedDialog.dismiss();
+            }
+        });
+
 
     }
 
@@ -193,7 +290,8 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
         isConnected = false;
         Context baseContext = v.getContext();
         String networkSSID = myWiFiList.get(pos).getScanResult().SSID;
-        EditText password = new EditText(v.getContext());
+        EditText password = new EditText(baseContext);
+        password.setInputType(TYPE_TEXT_VARIATION_VISIBLE_PASSWORD); // or TYPE_CLASS_TEXT
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(baseContext);
         dialog.setTitle(networkSSID+"에 연결하기위한 비밀번호를 입력해주세요.");

@@ -230,7 +230,7 @@ public class WifiListActivity extends AppCompatActivity {
         List<ScanResult> results = wifiManager.getScanResults(); // 검색된 WiFi 목록들
         List<WifiConfiguration> configurations = wifiManager.getConfiguredNetworks(); // 저장된 Wifi 목록들
         WifiInfo wifiInfo = wifiManager.getConnectionInfo(); // 현재 연결된 WiFi 정보
-        Log.i(TAG, "검색된 결과 개수:"+results.size());
+        // Log.i(TAG, "검색된 결과 개수:"+results.size());
         for (ScanResult result : results) {
             if(result.SSID.length() < 1) { // 이름 없으면 skip (왜 뜨는지는 모르겠지만 이름 없는 WiFi가 같이 검색되버림)
                 // Log.i(TAG, "SSID 비었음");
