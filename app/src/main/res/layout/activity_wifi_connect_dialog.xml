@@ -1,0 +1,98 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
+    tools:context=".bluetooth.BluetoothDialogActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:text="네트워크 정보 입력"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:text="네트워크 이름"/>
+
+    <EditText
+        android:id="@+id/et_dialog_wifi_connect_name"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:hint="SSID 입력"
+        android:textSize="18sp"
+        android:maxLines="1"
+        android:inputType="text"
+        android:textColor="@color/black"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:text="보안"/>
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinner_dialog_wifi_connect"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:entries="@array/array_wifi_security_protocol"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:text="암호"/>
+
+    <EditText
+        android:id="@+id/et_dialog_wifi_connect_password"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:hint="암호 입력"
+        android:textSize="18sp"
+        android:maxLines="1"
+        android:inputType="textVisiblePassword"
+        android:textColor="@color/black"
+        android:layout_marginBottom="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/tv_dialog_wifi_connect_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/teal_200"
+            android:textSize="13sp"
+            android:text="취  소"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/tv_dialog_wifi_connect_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/teal_200"
+            android:textSize="13sp"
+            android:gravity="end"
+            android:text="저  장"/>
+    </LinearLayout>
+
+
+    </LinearLayout>

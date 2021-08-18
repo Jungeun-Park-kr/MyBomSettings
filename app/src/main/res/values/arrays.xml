@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="array_wifi_security_protocol">
+        <item>없음</item>
+        <item>WEP</item>
+        <item>WPA/WPA2 PSK</item>
+        <item>802.1x EAP</item>
+    </string-array>
     <string-array name="array_notice">
         <item>없음</item>
         <item>Pixie Dust</item>

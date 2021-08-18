@@ -4,7 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
@@ -17,9 +20,14 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -57,6 +65,7 @@ public class WifiListActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     Button searchWifiBtn;
     Button addWifiBtn;
+    Dialog connectDialog; // WiFi 직접 입력해서 연결하는 다이얼로그
     LinearLayout contents; // WiFi on/off에 따라 본문 가릴때 사용
     TextView scanningTV, errorTV; // WiFi 검색중 텍스트, WiFi 꺼져있을때 안내 텍스트
     private static LottieAnimationView lottieAnimationView; //(로딩모양) 검색중 로띠
@@ -90,7 +99,8 @@ public class WifiListActivity extends AppCompatActivity {
         getApplicationContext().registerReceiver(wifiConnectReceiver, wifiIntentFilter);
 
         wifiSwitch.setOnCheckedChangeListener(new wifiSwitchListener()); // 블루투스 ON/OFF 스위치 리스너
-
+        searchWifiBtn.setOnClickListener(l-> clickWifiScan(searchWifiBtn)); // Wi-Fi 검색 버튼 클릭 리스너
+        addWifiBtn.setOnClickListener(l-> clickWifiConnect(addWifiBtn)); // Wi-Fi 직접 추가 버튼 클릭 리스너
     }
 
 
@@ -166,7 +176,6 @@ public class WifiListActivity extends AppCompatActivity {
                         }
                         wifiRAdapter.notifyDataSetChanged();
                     }
-
                 }
             } else if(action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
                 NetworkInfo networkInfo =
@@ -224,6 +233,151 @@ public class WifiListActivity extends AppCompatActivity {
     }// clickWifiScan()..
 
 
+    // 직접 입력 버튼 클릭
+    public void clickWifiConnect(View view) {
+        connectDialog = new Dialog(view.getContext());
+        connectDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        connectDialog.setContentView(R.layout.activity_wifi_connect_dialog);
+
+        connectDialog.show();
+        EditText wifi_name_et = connectDialog.findViewById(R.id.et_dialog_wifi_connect_name);
+        Spinner auth_spinner = connectDialog.findViewById(R.id.spinner_dialog_wifi_connect);
+        EditText wifi_password_et = connectDialog.findViewById(R.id.et_dialog_wifi_connect_password);
+        TextView connect_tv = connectDialog.findViewById(R.id.tv_dialog_wifi_connect_save);
+        TextView cancel_tv = connectDialog.findViewById(R.id.tv_dialog_wifi_connect_cancel);
+        
+        // 보안 프로토콜 타입
+        final int[] wifi_auth_tmp = {-1};
+        final int WIFI_AUTH_NONE = 0; //  WPA is not used
+        final int WIFI_AUTH_WEP = 1; // EAP authentication
+        final int WIFI_AUTH_WPA_PSK_OR_WPA2_PSK = 2; // WPA pre-shared key
+        final int WIFI_AUTH_IEEE8021X = 3; // IEEE 802.1X
+        final int WIFI_AUTH_WPA2_PSK = 4; // WPA2 pre-shared key (@hide 되어있음)
+
+        auth_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // 스피너 리스너
+           @Override
+           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { // 아이템 선택 리스너
+               // An item was selected. You can retrieve the selected item using
+               // parent.getItemAtPosition(pos)
+               Log.i(TAG, "선택 : "+position+"번, "+parent.getItemAtPosition(position));
+               switch(position) {
+                   case 1:
+                       wifi_auth_tmp[0] = WIFI_AUTH_WEP;
+                       break;
+                   case 2:
+                       wifi_auth_tmp[0] = WIFI_AUTH_WPA_PSK_OR_WPA2_PSK;
+                       break;
+                   case 3:
+                       wifi_auth_tmp[0] = WIFI_AUTH_IEEE8021X;
+                       break;
+                   default :
+                       wifi_auth_tmp[0] = WIFI_AUTH_NONE;
+                       break;
+               }
+           }
+           @Override
+           public void onNothingSelected(AdapterView<?> parent) { // 아무것도 선택 안된경우 (디폴트 : 없음)
+               wifi_auth_tmp[0] = WIFI_AUTH_NONE;
+           }
+       });
+
+//        Log.i(TAG, "이름:"+wifi_name+", 비번:"+wifi_password+", 보안:"+wifi_security);
+
+        connect_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String wifi_name = wifi_name_et.getText().toString();
+                String wifi_password = wifi_password_et.getText().toString();
+                final int wifi_auth = wifi_auth_tmp[0];
+
+                Log.i(TAG, "이름:"+wifi_name+", 비번:"+wifi_password+", 보안:"+wifi_auth+", wifi_auth_tmp[0]:"+wifi_auth_tmp[0]);
+                ///  0. 입력받은 정보 확인
+                //   1. 입력받은 정보로 연결 시작
+                //   2-1. 연결 성공시 WiFi 목록에 추가
+                //   2-2. 연결 실패시 실패 메시지 띄우고 다이얼로그 닫기
+
+                /* 0. 입력받은 정보 확인 */
+                if (wifi_name.length() < 1) {
+                    AlertDialog.Builder failDialog = new AlertDialog.Builder(v.getContext());
+                    failDialog.setTitle("올바른 정보를 입력해주세요.");
+                    failDialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ;
+                        }
+                    });
+                    failDialog.show();
+                    return ;
+                }
+
+                /* 1. 연결 시도 */
+                WifiConfiguration wifiConfig = new WifiConfiguration(); // Create a WifiConfig
+                wifiConfig.SSID = String.format("\"%s\"", wifi_name); //AP Name
+                if (wifi_password.length() > 1) { // 암호 있는 경우 설정
+                    wifiConfig.preSharedKey = String.format("\"%s\"", wifi_password); //
+                }
+                
+                /*Key Mgmnt*/
+                wifiConfig.allowedKeyManagement.clear();
+                switch (wifi_auth) {
+                    case WIFI_AUTH_WEP:
+                        wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_EAP);
+                        break;
+                    case WIFI_AUTH_WPA_PSK_OR_WPA2_PSK :
+                        wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                        wifiConfig.allowedKeyManagement.set(WIFI_AUTH_WPA2_PSK); // KeyMgmt.WPA_PSK는 @hide 되어있음
+                        break;
+                    case WIFI_AUTH_IEEE8021X :
+                        wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.IEEE8021X);
+                        break;
+                    default :
+                        wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                }
+                /* Create WifiManager */
+                WifiManager wifiManager = (WifiManager)baseContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                int netId = wifiManager.addNetwork(wifiConfig); // WiFi manager에 추가해주기
+                if (netId == -1) { // 실패
+                    Log.e(TAG, "addNetwork() returns -1.");
+                    AlertDialog.Builder failDialog = new AlertDialog.Builder(v.getContext());
+                    failDialog.setTitle("네트워크 추가를 실패했습니다. 다시 시도해주세요");
+                    failDialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ;
+                        }
+                    });
+                    failDialog.show();
+                    return ;
+                }
+                else {
+                    wifiManager.disconnect();
+                    wifiManager.enableNetwork(netId, true); // 실제 Android에 연결 시키기
+                    boolean isSucceeded = wifiManager.reconnect();
+                    if (isSucceeded && wifiConfig.status == 0) { // 연결 성공시 다이얼로그 닫기
+                        Log.i(TAG, "연결성공?,"+"isSucceeded:"+isSucceeded+", status:"+wifiConfig.status+", supplicant state:"+wifiManager.getConnectionInfo().getSupplicantState());
+                        AlertDialog.Builder failDialog = new AlertDialog.Builder(v.getContext());
+                        failDialog.setTitle("네트워크 추가를 성공했습니다. [재검색]버튼을 눌러 확인해주세요.");
+                        failDialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ;
+                            }
+                        });
+                        failDialog.show();
+                        connectDialog.dismiss();
+                    }
+                }
+            }
+        });
+
+        cancel_tv.setOnClickListener(new View.OnClickListener() { // 취소 버튼 클릭
+            @Override
+            public void onClick(View v) {
+                connectDialog.dismiss();
+            }
+        });
+
+    }
 
     private void scanSuccess() {    // Wifi검색 성공
         wifiList = new ArrayList<>(); // 전체 WiFi 목록
