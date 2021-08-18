@@ -356,6 +356,8 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
         dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                myWiFiList.get(pos).setState(WiFi.WIFI_NONE);
+                notifyDataSetChanged();
                 dialog.dismiss();
             }
         });

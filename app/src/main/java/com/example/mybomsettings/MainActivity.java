@@ -18,15 +18,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 import com.example.mybomsettings.bluetooth.BluetoothListActivity;
 import com.example.mybomsettings.bluetooth.BluetoothService;
 import com.example.mybomsettings.wifi.WifiListActivity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class MainActivity extends AppCompatActivity {
 
 //    static final String[] SETTINGS_MENU = {"시스템 설정", "디스플레이", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
-static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
+    static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
     private static final String TAG = "MainActivity MyTag";
     private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION=1; // 블루투스 권한
     @Override
@@ -74,7 +78,7 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
                     case 2: // 블루투스
                          settingBluetooth();
                         break;
-                    case 3: // 날짜 및 시간
+                    case 3: // 날짜 및 시간 -> 시간 앱 이동으로 대체
                         settingTime();
                         break;
                     case 4: // 휴대전화 정보
@@ -171,6 +175,7 @@ static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투�
     }
 
     public void settingTime() {
-        startActivity( new Intent( Settings.ACTION_DATE_SETTINGS ));
+        // startActivity( new Intent( Settings.ACTION_DATE_SETTINGS )); // 기본 설정앱의 시간 설정 화면
+        startActivity( new Intent( getPackageManager().getLaunchIntentForPackage("com.android.deskclock") )); // 시계 앱 열기
     }
 }

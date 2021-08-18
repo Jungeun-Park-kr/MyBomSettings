@@ -167,6 +167,7 @@ public class WifiListActivity extends AppCompatActivity {
                         String ssid = networkInfo.getExtraInfo();
                         for (WiFi wifi : wifiList) {
                             if (ssid.equals("\""+wifi.getSsid()+"\"")) { // 새로 연결된 경우 텍스트 변경
+                                //Log.i(TAG, "connectedWiFiPosition :"+connectedWiFiPosition+", newConnectWifiPosition:"+wifiList.indexOf(wifi));
                                 if (connectedWiFiPosition != -1)
                                     wifiList.get(connectedWiFiPosition).setState(WiFi.WIFI_SAVED); // 기존에 연결됨 -> 저장됨
                                 wifi.setState(WiFi.WIFI_CONNECTED); // 새롭게 연결된 WIFI 텍스트 변경
