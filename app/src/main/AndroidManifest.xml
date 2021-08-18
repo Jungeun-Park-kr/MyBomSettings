@@ -31,7 +31,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyBomSettings">
-        <activity android:name=".wifi.WifiDialogActivity"></activity>
+        <activity android:name=".wifi.WifiConnectDialogActivity"></activity>
+        <activity android:name=".wifi.WifiDialogActivity" />
 
         <service
             android:name=".bluetooth.BluetoothService"

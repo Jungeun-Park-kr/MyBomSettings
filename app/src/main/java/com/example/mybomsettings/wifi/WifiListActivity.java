@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -17,9 +18,12 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -57,6 +61,7 @@ public class WifiListActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     Button searchWifiBtn;
     Button addWifiBtn;
+    Dialog connectDialog; // WiFi 직접 입력해서 연결하는 다이얼로그
     LinearLayout contents; // WiFi on/off에 따라 본문 가릴때 사용
     TextView scanningTV, errorTV; // WiFi 검색중 텍스트, WiFi 꺼져있을때 안내 텍스트
     private static LottieAnimationView lottieAnimationView; //(로딩모양) 검색중 로띠
@@ -224,6 +229,41 @@ public class WifiListActivity extends AppCompatActivity {
     }// clickWifiScan()..
 
 
+    // 직접 입력 버튼 클릭
+    public void clickWifiConnect(View view) {
+        connectDialog = new Dialog(view.getContext());
+        connectDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        connectDialog.setContentView(R.layout.activity_wifi_connect_dialog);
+
+        connectDialog.show();
+        EditText wifi_name_et = connectDialog.findViewById(R.id.et_dialog_wifi_connect_name);
+        Spinner security_spinner = connectDialog.findViewById(R.id.spinner_dialog_wifi_connect);
+        EditText wifi_password_et = connectDialog.findViewById(R.id.et_dialog_wifi_connect_password);
+        TextView connect_tv = connectDialog.findViewById(R.id.tv_dialog_wifi_connect_connect);
+        TextView cancel_tv = connectDialog.findViewById(R.id.tv_dialog_wifi_connect_cancel);
+
+        String wifi_name = wifi_name_et.getText().toString().trim();
+        String wifi_password = wifi_password_et.getText().toString().trim();
+        String wifi_security = security_spinner.getTransitionName();
+
+        Log.i(TAG, "이름:"+wifi_name+", 비번:"+wifi_password+", 보안:"+wifi_security);
+
+        connect_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        cancel_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "이름:"+wifi_name+", 비번:"+wifi_password+", 보안:"+wifi_security);
+                connectDialog.dismiss();
+            }
+        });
+
+    }
 
     private void scanSuccess() {    // Wifi검색 성공
         wifiList = new ArrayList<>(); // 전체 WiFi 목록
