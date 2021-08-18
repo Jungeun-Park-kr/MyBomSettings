@@ -100,19 +100,17 @@
                     android:backgroundTint="@color/gray"
                     android:layout_gravity="end"
                     android:text="재검색"
-                    android:onClick="clickWifiScan"
                     android:textSize="12sp" />
                 <Button
                     android:id="@+id/btn_wifi_add"
-                    android:layout_width="85dp"
+                    android:layout_width="110dp"
                     android:layout_height="40dp"
                     android:layout_gravity="end"
                     android:layout_marginStart="5dp"
                     android:layout_marginBottom="0dp"
                     android:backgroundTint="@color/gray"
-                    android:text="직접 입력"
-                    android:textSize="12sp"
-                    android:onClick="clickWifiConnect"/>
+                    android:text="네트워크 추가"
+                    android:textSize="12sp"/>
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -128,9 +126,6 @@
                 android:smoothScrollbar="true" />
 
         </LinearLayout>
-
     </LinearLayout>
-
-
 </ScrollView>
 
