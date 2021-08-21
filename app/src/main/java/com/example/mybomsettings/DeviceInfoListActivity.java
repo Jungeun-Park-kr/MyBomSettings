@@ -29,11 +29,16 @@ import java.util.List;
 
 public class DeviceInfoListActivity extends AppCompatActivity {
 
-    TextView batteryState;
-    TextView batteryLevel;
-    TextView ip;
-    TextView wifiMacAddress;
-    TextView bluetoothAddress;
+    /**
+     * 하드 코딩 된 것 : 모델, Android 버전
+     * 직접 구현 된 것 : 배터리 상태, 배터리 수준, IP주소, WiFi맥주소, 블루투스 주소, 빌드번호
+     */
+    TextView batteryState; // 배터리 상태
+    TextView batteryLevel; // 배터리 수준
+    TextView ip; //IP주소
+    TextView wifiMacAddress; // wifi 맥 주소
+    TextView bluetoothAddress; // 블루투스 주소
+    TextView buildId; // 빌드번호
 
     @SuppressLint("HardwareIds")
     @Override
@@ -46,21 +51,23 @@ public class DeviceInfoListActivity extends AppCompatActivity {
         ip = findViewById(R.id.device_ip);
         wifiMacAddress = findViewById(R.id.device_wifi_mac_address);
         bluetoothAddress = findViewById(R.id.device_bluetooth_address);
+        buildId = findViewById(R.id.device_bluetooth_buildID);
 
         batteryState.setText(getBatteryState(this));
         batteryLevel.setText(getBatteryLevel(this));
         ip.setText(getIpAddress());
         wifiMacAddress.setText(getMacAddress());
         bluetoothAddress.setText(getBluetoothMac(this));
+        buildId.setText(getBuildID(this));
     }
 
     private String getIpAddress() {
-        //Device에 있는 모든 네트워크에 대해 뺑뺑이를 돕니다.
+        // Device에 있는 모든 네트워크에 대해 for문을 돔
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
                 NetworkInterface intf = en.nextElement();
 
-                //네트워크 중에서 IP가 할당된 넘들에 대해서 뺑뺑이를 한 번 더 돕니다.
+                //네트워크 중에서 IP가 할당된 객체에 대해 for문을 또 돔
                 for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
 
                     InetAddress inetAddress = enumIpAddr.nextElement();
@@ -171,5 +178,9 @@ public class DeviceInfoListActivity extends AppCompatActivity {
             //handle exception
         }
         return "";
+    }
+
+    private String getBuildID(final Context context) {
+        return Build.FINGERPRINT;
     }
 }

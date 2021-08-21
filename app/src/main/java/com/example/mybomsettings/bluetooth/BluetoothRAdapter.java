@@ -33,6 +33,10 @@ import static com.example.mybomsettings.bluetooth.BluetoothListActivity.unpairDe
 @SuppressLint("LongLogTag")
 public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.ViewHolder>{
 
+    /**
+     * 등록된 디바이스 목록을 관리하기 위한 RecyclerView Adapter
+     * - 데이터 등록, 클릭 이벤트 등을 관리
+     */
     public ArrayList<Bluetooth> myBluetoothList;
 
     Dialog bluetoothDialog; // 블루투스 기기 클릭시 띄울 다이얼로그
@@ -47,7 +51,7 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
 
             // There are paired devices. Get the name and address of each paired device.
             for (Bluetooth device : bluetoothDevices) {
-                Log.i(TAG, "페어링된 기기:"+device.getName());
+                //Log.i(TAG, "페어링된 기기:"+device.getName());
                 myBluetoothList.add(device);
             }
         }
@@ -80,15 +84,13 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
             int pos = getAdapterPosition();
             if (v == setting) { // 기기 설정버튼
                 // 커스텀 다이얼로그 띄우기
-                Log.i(TAG, "설정 클릭:"+(String) myBluetoothList.get(pos).getName());
                 bluetoothDialog = new Dialog(v.getContext());
                 bluetoothDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 bluetoothDialog.setContentView(R.layout.activity_bluetooth_dialog);
                 showBluetoothDialog(v, pos);
             } else { // 기기 이름 버튼 - 블루투스 연결하기
-                // TODO : 블루투스 연결하기 - 안됨..
 //                BluetoothListActivity.connectSelectedDevice((String) myBluetoothList.get(pos).getName());
-                Log.i(TAG, "기기 클릭:"+(String) myBluetoothList.get(pos).getName());
+                // Log.i(TAG, "기기 클릭:"+(String) myBluetoothList.get(pos).getName());
 
                 BluetoothDevice device = myBluetoothList.get(pos).getDevice();
                 if (myBluetoothList.get(pos).getConnected()) { // 이미 연결 되어있는 경우
@@ -99,20 +101,10 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                     adb.setMessage(myBluetoothList.get(pos).getName()+"와(과) 연결이 끊어집니다.");
                     adb.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) { // 연결 해제 시작
+                        public void onClick(DialogInterface dialog, int which) { // 연결 해제 시작 (2가지 방법 모두 시도해야 성공됨)
                             disconnectPairedDevice(device); // 일반 BLUETOOTH
                             disConnectBLEDevice(device); // DEVICE_TYPE_LE
                             closeGatt();
-                           /*if (device.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
-                                Log.i(TAG, "DEVICE_TYPE_LE 연결 해제");
-                                disConnectBLEDevice(device); // DEVICE_TYPE_LE
-                                closeGatt();
-                            } else {
-                                Log.i(TAG, "일반 블루투스 연결 해제");
-                                disconnectPairedDevice(device); // 일반 BLUETOOTH
-                                disConnectBLEDevice(device); // DEVICE_TYPE_LE
-                               closeGatt();
-                            }*/
                             dialog.dismiss();
                         }
                     });
@@ -125,7 +117,7 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                     AlertDialog alertDialog = adb.create();
                     alertDialog.show();
                 } else { // 연결 안되어있는 경우
-                    // 연결 시도하기 (두개 다 해줘야 연결됨)
+                    // 연결 시도하기 (두개 다 해줘야 연결됨 - 이유 모름)
                     connectPairedDevice(device); // 일반 BLUETOOTH
                     connectSelectedBLEDevice(device); // DEVICE_TYPE_LE
                 }
@@ -187,7 +179,6 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
     }
 
     private void showBluetoothDialog(View v, int pos) { // 다이얼로그 디자인 및 띄우기
-        Log.i(TAG, "다이얼로그 띄우기");
         bluetoothDialog.show();
 
         BluetoothDevice device = myBluetoothList.get(pos).getDevice(); // 클릭한 디바이스 정보
@@ -205,7 +196,7 @@ public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.Vi
                 String tmp = (String) myBluetoothList.get(pos).getName();
                 bluetoothDialog.dismiss(); // 다이얼로그 닫기
                 myBluetoothList.remove(pos); // 삭제한 디바이스는 목록에서 삭제 (이거 동작안됨)
-                Log.i(TAG, tmp+"삭제 완료, bluetoothList길이 :"+myBluetoothList.size());
+                // Log.i(TAG, tmp+"삭제 완료, bluetoothList길이 :"+myBluetoothList.size());
             }
         });
 

@@ -29,7 +29,6 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
-//    static final String[] SETTINGS_MENU = {"시스템 설정", "디스플레이", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
     static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
     private static final String TAG = "MainActivity MyTag";
     private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION=1; // 블루투스 권한
@@ -105,11 +104,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void settingDisplay() { // 디스플레이 설정
-        Intent displayIntent = new Intent(getApplicationContext(), DisplayListActivity.class);
-        startActivity(displayIntent);
-    }
-
     public void settingSystem() { // 시스템 세팅 (디스플레이, 소리)
         Intent systemIntent = new Intent(getApplicationContext(), SystemListActivity.class);
         startActivity(systemIntent);
@@ -118,22 +112,16 @@ public class MainActivity extends AppCompatActivity {
     public void settingBluetooth() {
         Intent bluetoothIntent = new Intent(getApplicationContext(), BluetoothListActivity.class); //BluetoothListActivity
         startActivity(bluetoothIntent);
-//        startActivity( new Intent( Settings.ACTION_BLUETOOTH_SETTINGS ));
-
-        /*Dialog dilaog01 = new Dialog(MainActivity.this);       // Dialog 초기화
-        dilaog01.requestWindowFeature(Window.FEATURE_NO_TITLE); // 타이틀 제거
-        dilaog01.setContentView(R.layout.dialog_bluetooth_search);             // xml 레이아웃 파일과 연결
-        dilaog01.show();*/
     }
 
     public void settingWiFi() {
-//        startActivity( new Intent( Settings.ACTION_WIFI_SETTINGS ));
+//        startActivity( new Intent( Settings.ACTION_WIFI_SETTINGS )); // 내장된 설정앱의 wifi 설정 화면 열기
         Intent wifiIntent = new Intent(getApplicationContext(), WifiListActivity.class); //BluetoothListActivity
         startActivity(wifiIntent);
     }
 
     public void settingDeviceInfo() {
-//        startActivity( new Intent( Settings.ACTION_DEVICE_INFO_SETTINGS ));
+//        startActivity( new Intent( Settings.ACTION_DEVICE_INFO_SETTINGS )); // 내장된 설정앱의 휴대폰정보 화면 열기
         Intent deviceInfoIntent = new Intent(getApplicationContext(), DeviceInfoListActivity.class);
         startActivity(deviceInfoIntent);
     }

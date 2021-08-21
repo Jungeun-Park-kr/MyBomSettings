@@ -162,9 +162,10 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="15dp"/>
         <TextView
+            android:id="@+id/device_bluetooth_buildID"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="NMF26X"
+            android:text="XXXXX"
             android:textSize="14sp"
             android:layout_marginStart="15dp"/>
         <View

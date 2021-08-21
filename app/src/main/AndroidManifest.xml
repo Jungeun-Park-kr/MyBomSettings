@@ -49,7 +49,6 @@
         </activity>
         <activity android:name=".bluetooth.BluetoothListActivity" />
         <activity android:name=".SystemListActivity" />
-        <activity android:name=".DisplayListActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

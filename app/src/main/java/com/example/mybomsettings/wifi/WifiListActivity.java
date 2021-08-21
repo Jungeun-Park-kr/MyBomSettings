@@ -50,7 +50,7 @@ public class WifiListActivity extends AppCompatActivity {
     private static Context baseContext;
     private static final String TAG = "WifiListActivity MyTag";
 
-    // WiFi
+    // WiFi 관련 객체들
     IntentFilter intentFilter = new IntentFilter();
     IntentFilter wifiIntentFilter = new IntentFilter();
     WifiManager wifiManager;
@@ -62,17 +62,18 @@ public class WifiListActivity extends AppCompatActivity {
 
     // UI
     SwitchMaterial wifiSwitch; // 블루투스 사용 유무 스위치
-    RecyclerView recyclerView;
-    Button searchWifiBtn;
-    Button addWifiBtn;
+    Button searchWifiBtn; // WiFi 검색 버튼
+    Button addWifiBtn; // WiFi 네트워크 직접 추가 버튼
     Dialog connectDialog; // WiFi 직접 입력해서 연결하는 다이얼로그
     LinearLayout contents; // WiFi on/off에 따라 본문 가릴때 사용
     TextView scanningTV, errorTV; // WiFi 검색중 텍스트, WiFi 꺼져있을때 안내 텍스트
     private static LottieAnimationView lottieAnimationView; //(로딩모양) 검색중 로띠
+
+    RecyclerView recyclerView; // WiFi 목록을 보여주는 Recycler View
     
     // Adapter
-    WifiRAdapter wifiRAdapter;
-    List<WiFi> wifiList;
+    WifiRAdapter wifiRAdapter; // WiFi 목록을 위한 어댑터
+    List<WiFi> wifiList;  // WiFi를 담을 리스트
 
 
     @Override
@@ -86,11 +87,11 @@ public class WifiListActivity extends AppCompatActivity {
         mWifi = connManager.getNetworkInfo(TYPE_WIFI);
         initializeAll();
 
-        // Wifi Scan 관련 리시버
+        // Wifi Scan 관련 리시버 등록
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         getApplicationContext().registerReceiver(wifiScanReceiver, intentFilter);
-        // WiFi Connect 관련 리시버
+        // WiFi Connect 관련 리시버 등록
         wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         wifiIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         wifiIntentFilter.addAction(SUPPLICANT_STATE_CHANGED_ACTION);
@@ -109,8 +110,9 @@ public class WifiListActivity extends AppCompatActivity {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (isChecked && !checkWifiOnAndConnected()) { // 스위치 ON
                 wifiManager.setWifiEnabled(true);
-                Log.e(TAG, "스위치ON 감지");
                 clickWifiScan(buttonView); // 바로 스캔 시작
+                // TODO : 스위치 켰을때 무한 검색하는 문제가 있음.. 진입할 때 자동으로 ON하려는 기능이 원인으로 보임
+                //         진입하자마자 검색은 성공 but 이후에 스위치를 키면 오류 발생 (재검색 버튼은 정상동작)
             } else { // 스위치 OFF
                 wifiManager.setWifiEnabled(false);
                 errorTV.setVisibility(View.VISIBLE);
@@ -159,15 +161,13 @@ public class WifiListActivity extends AppCompatActivity {
             if(action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                 NetworkInfo networkInfo =
                         intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                if(networkInfo.isConnected()) {
-                    // Wifi is connected
-                    Log.d(TAG, "Wifi is connected: " + String.valueOf(networkInfo));
+                if(networkInfo.isConnected()) { // Wifi is connected
+                    // Log.d(TAG, "Wifi is connected: " + String.valueOf(networkInfo));
                     isConnected = true;
                     if (wifiList != null) {
                         String ssid = networkInfo.getExtraInfo();
                         for (WiFi wifi : wifiList) {
                             if (ssid.equals("\""+wifi.getSsid()+"\"")) { // 새로 연결된 경우 텍스트 변경
-                                //Log.i(TAG, "connectedWiFiPosition :"+connectedWiFiPosition+", newConnectWifiPosition:"+wifiList.indexOf(wifi));
                                 if (connectedWiFiPosition != -1)
                                     wifiList.get(connectedWiFiPosition).setState(WiFi.WIFI_SAVED); // 기존에 연결됨 -> 저장됨
                                 wifi.setState(WiFi.WIFI_CONNECTED); // 새롭게 연결된 WIFI 텍스트 변경
@@ -182,13 +182,11 @@ public class WifiListActivity extends AppCompatActivity {
                 NetworkInfo networkInfo =
                         intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
                 if(networkInfo != null && (networkInfo.getType() == ConnectivityManager.TYPE_WIFI &&
-                        ! networkInfo.isConnected())) {
-                    // Wifi is disconnected
-                    Log.d(TAG, "Wifi is disconnected: " + String.valueOf(networkInfo));
+                        ! networkInfo.isConnected())) { // Wifi is disconnected
+                    // Log.d(TAG, "Wifi is disconnected: " + String.valueOf(networkInfo));
                     if (wifiList != null) {
                         String ssid = networkInfo.getExtraInfo();
                         for (WiFi wifi : wifiList) {
-//                            Log.d(TAG, "비교중 :"+wifi.getSsid()+" - "+ssid);
                             if (ssid.equals("\""+wifi.getSsid()+"\"")) { // 연결 해제된 경우 텍스트 변경
                                 wifi.setState(WiFi.WIFI_SAVED);
                                 break;
@@ -197,16 +195,11 @@ public class WifiListActivity extends AppCompatActivity {
                         wifiRAdapter.notifyDataSetChanged();
                     }
                 }
-            } else if (action.equals(SUPPLICANT_STATE_CHANGED_ACTION)) {
-               // Log.d(TAG, "Wifi state changed");
-            } else if (action.equals(SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
-               // Log.d(TAG, "Wifi connection changed");
             }
             int supl_error=intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, -1);
             if(supl_error == WifiManager.ERROR_AUTHENTICATING) {
-                Log.e(TAG, "ERROR_AUTHENTICATING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                // Log.e(TAG, "ERROR_AUTHENTICATING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 if (connectingWiFiPosition != -1) { // 현재 연결중인 WiFi의 비밀번호가 틀린 경우
-                    Log.i(TAG, "인증 에러난것 텍스트 변경");
                     wifiList.get(connectingWiFiPosition).setState(WiFi.WIFI_AUTH_ERROR);
                     wifiRAdapter.notifyDataSetChanged();
                 }
@@ -217,8 +210,6 @@ public class WifiListActivity extends AppCompatActivity {
 
     //버튼을 눌렀을 때
     public void clickWifiScan(View view) {
-        //getApplicationContext().registerReceiver(wifiScanReceiver, intentFilter);
-        Log.e(TAG, "WiFi 스캔 시작");
         boolean success = wifiManager.startScan();
         contents.setVisibility(View.VISIBLE);
         errorTV.setVisibility(View.GONE);
@@ -229,12 +220,12 @@ public class WifiListActivity extends AppCompatActivity {
         if (!success) {
             scanningTV.setVisibility(View.INVISIBLE);
             lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
-            Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
+            // Log.e(TAG, "\"Wifi Scan에 실패하였습니다.");
         }
     }// clickWifiScan()..
 
 
-    // 직접 입력 버튼 클릭
+    // 네트워크 추가 버튼 클릭
     public void clickWifiConnect(View view) {
         connectDialog = new Dialog(view.getContext());
         connectDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -260,7 +251,7 @@ public class WifiListActivity extends AppCompatActivity {
            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { // 아이템 선택 리스너
                // An item was selected. You can retrieve the selected item using
                // parent.getItemAtPosition(pos)
-               Log.i(TAG, "선택 : "+position+"번, "+parent.getItemAtPosition(position));
+               // Log.i(TAG, "선택 : "+position+"번, "+parent.getItemAtPosition(position));
                switch(position) {
                    case 1:
                        wifi_auth_tmp[0] = WIFI_AUTH_WEP;
@@ -282,9 +273,7 @@ public class WifiListActivity extends AppCompatActivity {
            }
        });
 
-//        Log.i(TAG, "이름:"+wifi_name+", 비번:"+wifi_password+", 보안:"+wifi_security);
-
-        connect_tv.setOnClickListener(new View.OnClickListener() {
+        connect_tv.setOnClickListener(new View.OnClickListener() { // 저장 버튼 클릭
             @Override
             public void onClick(View v) {
                 String wifi_name = wifi_name_et.getText().toString();
@@ -438,6 +427,16 @@ public class WifiListActivity extends AppCompatActivity {
         scanningTV.setVisibility(View.INVISIBLE);
         lottieAnimationView.setVisibility(View.INVISIBLE); //로띠종료
 //  ... potentially use older scan results ...
+        AlertDialog.Builder failDialog = new AlertDialog.Builder(this);
+        failDialog.setTitle("WiFi 검색을 실패했습니다. 다시 시도해주세요");
+        failDialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ;
+            }
+        });
+        failDialog.show();
+        return ;
     }
 
     private void initializeAll() {

@@ -33,6 +33,11 @@ import static com.example.mybomsettings.bluetooth.BluetoothListActivity.pairedDe
 import static com.example.mybomsettings.bluetooth.BluetoothListActivity.updateBluetoothList;
 
 public class BluetoothService extends Service {
+    /**
+     * 항상 블루투스 연결을 감지하기 위한 서비스
+     * - 포그라운드 서비스 방식으로 구현함
+     */
+
     private static final String TAG = "MyTag)BluetoothService";
 
     // 항상 앱을 켜두기 위한 상단바
@@ -78,20 +83,7 @@ public class BluetoothService extends Service {
 
         startForeground();
 
-        Log.d(TAG, "onStartCommand - Bluetooth Service started! ");
-
-        /*if (!isServiceRunning(BluetoothService.class.getName())) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    handleStart(intent, startId);
-                }
-            }, "BluetoothService").start();
-
-            Log.d(TAG, "onStartCommand - Bluetooth Service started! ");
-        } else {
-            Log.d(TAG, "onStartCommand - Bluetooth Service already running! ");
-        }*/
+        //Log.d(TAG, "onStartCommand - Bluetooth Service started! ");
 
         return START_STICKY;
     }
@@ -112,7 +104,6 @@ public class BluetoothService extends Service {
 
 
     synchronized void handleStart(Intent intent, int startId) {
-        // 브로드캐스트 리시버 등록
         //블루투스 브로드캐스트 리시버 등록
         IntentFilter searchFilter = new IntentFilter();
         searchFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED); //BluetoothRAdapter.ACTION_DISCOVERY_STARTED : 블루투스 검색 시작
@@ -133,58 +124,44 @@ public class BluetoothService extends Service {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) { // 연결됨
                 connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.i(TAG, "연결된 애 있음. 갱신 시도..."+ connectedDevice.getName());
+                Log.i(TAG, "새로운 연결 감지 : "+ connectedDevice.getName());
                 for (Bluetooth bluetooth : pairedDevices) {
                     if (connectedDevice.getName().equals(bluetooth.getName().toString())) { // 일치하는 기기 찾기
                         pairedDevices.get(pairedDevices.indexOf(bluetooth)).setConnected(true);
                         updateBluetoothList(pairedDevices);
-                        Log.i(TAG, "완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
-                        Log.i(TAG, "--연결됨--" + connectedDevice.getName());
+                        /*Log.i(TAG, "pairedDevice 리스트 갱신 완료 - pairedDevices의 길이:"+pairedDevices.size());
+                        Log.i(TAG, "--연결됨--" + connectedDevice.getName());*/
                         break;
                     }
                 }
             } else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) { // 연결해제 요청
                 connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.i(TAG, "연결해제 될 애 있음. 갱신 시도..." + connectedDevice.getName());
+                Log.i(TAG, "연결해제 시도 감지 :" + connectedDevice.getName());
                 for (Bluetooth bluetooth : pairedDevices) {
                     if (connectedDevice.getName().equals(bluetooth.getName().toString())) { // 일치하는 기기 찾기
                         pairedDevices.get(pairedDevices.indexOf(bluetooth)).setConnected(false);
                         updateBluetoothList(pairedDevices);
-                        Log.i(TAG, "완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
-                        Log.i(TAG, "--연결 해제 요청--" + connectedDevice.getName());
+                        /*Log.i(TAG, "pairedDevice 리스트 완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
+                        Log.i(TAG, "--연결 해제 요청--" + connectedDevice.getName());*/
                         break;
                     }
                 }
             } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) { // 연결 해제됨
                 connectedDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.i(TAG, "연결해제 된 애 있음. 갱신 시도..." + connectedDevice.getName());
+                Log.i(TAG, "연결해제 감지 : " + connectedDevice.getName());
                 for (Bluetooth bluetooth : pairedDevices) {
                     if (connectedDevice.getName().equals(bluetooth.getName().toString())) { // 일치하는 기기 찾기
                         pairedDevices.get(pairedDevices.indexOf(bluetooth)).setConnected(false);
                         updateBluetoothList(pairedDevices);
-                        Log.i(TAG, "완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
-                        Log.i(TAG, "--연결 해제됨--" + connectedDevice.getName());
+                        /*Log.i(TAG, "pairedDevice 리스트 완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
+                        Log.i(TAG, "--연결 해제됨--" + connectedDevice.getName());*/
                         break;
                     }
                 }
-                Log.i(TAG,"ACTION_ACL_DISCONNECTED 필터링 끝");
             }
         }
     };
 
-    public Boolean isServiceRunning(String class_name){
-        // 시스템 내부의 액티비티 상태를 파악하는 ActivityManager객체를 생성한다.
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        //  manager.getRunningServices(가져올 서비스 목록 개수) - 현재 시스템에서 동작 중인 모든 서비스 목록을 얻을 수 있다.
-        // 리턴값은 List<ActivityManager.RunningServiceInfo>이다. (ActivityManager.RunningServiceInfo의 객체를 담은 List)
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            // ActivityManager.RunningServiceInfo의 객체를 통해 현재 실행중인 서비스의 정보를 가져올 수 있다.
-            if (class_name.equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return  false;
-    }
 
     @Override
     public IBinder onBind(Intent intent) {

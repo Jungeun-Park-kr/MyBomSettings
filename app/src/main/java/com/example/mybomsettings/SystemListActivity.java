@@ -35,15 +35,20 @@ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
 public class SystemListActivity extends AppCompatActivity{
 
     // 디스플레이 UI
-    SeekBar brightnessSeekBar;
-    Switch brightnessModeSwitch;
+    SeekBar brightnessSeekBar; // 밝기 조절
+    Switch brightnessModeSwitch; // 자동 밝기 ON/OFF
 
+    /**
+     * <<사운드>>
+     * 안드로이드에는 총 5가지의 소리가 있음
+     * 따라서 5가지를 조절할 수 있는 기능을 모두 넣었음
+     */
     // 사운드 UI
-    SeekBar alarmSeekBar;
-    SeekBar mediaSeekBar;
-    SeekBar callSeekBar;
-    SeekBar notificationSeekBar;
-    SeekBar systemSeekBar;
+    SeekBar alarmSeekBar; // 알람
+    SeekBar mediaSeekBar; // 미디어
+    SeekBar callSeekBar; // 전화
+    SeekBar notificationSeekBar; // 알림
+    SeekBar systemSeekBar; // 시스템
 
     private AudioManager mAudioManager;
     public static Context baseContext;
@@ -60,12 +65,12 @@ public class SystemListActivity extends AppCompatActivity{
         initialSoundSetting(); // 현재 소리 설정값 가져와서 초기화
 
         // SeekBar 리스너 등록
-        brightnessSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener());
-        alarmSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener());
-        mediaSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener());
-        callSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener());
-        notificationSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener());
-        systemSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener());
+        brightnessSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener()); // 밝기 조절
+        alarmSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener()); // 알람 볼륨
+        mediaSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener()); // 미디어 볼륨
+        callSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener()); // 전화
+        notificationSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener()); // 알림
+        systemSeekBar.setOnSeekBarChangeListener(new seekBarChangeListener()); // 시스템
 
         // 자동 밝기 ON/OFF 스위치
         brightnessModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -76,17 +81,17 @@ public class SystemListActivity extends AppCompatActivity{
                         if (brightnessModeSwitch.isChecked()) { // 자동 밝기 checked
                             Settings.System.putInt(getContentResolver(), SCREEN_BRIGHTNESS_MODE, SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
                             brightnessSeekBar.setEnabled(false); // 밝기 조절 X
-                            Log.i("MyTag:", "자동밝기 켬");
+                            // Log.i("MyTag:", "자동밝기 켬");
                         } else { // 자동 밝기 X
                             Settings.System.putInt(getApplicationContext().getContentResolver(), SCREEN_BRIGHTNESS_MODE, SCREEN_BRIGHTNESS_MODE_MANUAL);
                             brightnessSeekBar.setEnabled(true); // 밝기 조절 가능
-                            Log.i("MyTag:", "자동밝기 끔");
+                            // Log.i("MyTag:", "자동밝기 끔");
                         }
-                    }  else {
-                        Log.e("MyTag:", "canWrite()불가임~ 앱 권한 - 시스템 설정 권한 확인해보기");
+                    }  else { // 권한이 없는 경우 설정을 바꿀 수 없음
+                        // Log.e("MyTag:", "canWrite()불가임~ 앱 권한 - 시스템 설정 권한 확인해보기");
                     }
-                } else {
-                    Log.e("MyTag:", "버전 아님");
+                } else { // 설정을 바꿀 수 없는 버전
+                    // Log.e("MyTag:", "버전 아님");
                 }
             }
         });
@@ -109,9 +114,10 @@ public class SystemListActivity extends AppCompatActivity{
         alarmSeekBar.setProgress(mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM));
         callSeekBar.setProgress(mAudioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL));
 
-        Log.i("MyTag:", "media:"+(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        // 확인용
+        /*Log.i("MyTag:", "media:"+(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
         Log.i("MyTag:", "alarm:"+(mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM)));
-        Log.i("MyTag:", "notice:"+(mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)));
+        Log.i("MyTag:", "notice:"+(mAudioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)));*/
     }
 
 
@@ -122,7 +128,7 @@ public class SystemListActivity extends AppCompatActivity{
             // 밝기 얻어와서 세팅해주기
             int currentBrightness = Settings.System.getInt(getApplicationContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, /* default value */ 50);
             brightnessSeekBar.setProgress((int) currentBrightness);
-            Log.i("MyTag:", "현재 밝기:"+currentBrightness+", sdk version:"+Build.VERSION.SDK_INT);
+            //Log.i("MyTag:", "현재 밝기:"+currentBrightness+", sdk version:"+Build.VERSION.SDK_INT);
 
             // 밝기 모드 세팅해주기
             int brightnessMode = Settings.System.getInt(getApplicationContext().getContentResolver(), SCREEN_BRIGHTNESS_MODE);
@@ -139,6 +145,12 @@ public class SystemListActivity extends AppCompatActivity{
     }
 
 
+    /**
+     *  안드로이드는 밝기가 최대 255까지 지원함
+     *  따라서 seekBar의 maxValue도 255
+     *  10보다 작을 경우 10으로 유지
+     * @param val 밝기 값
+     */
     private void setBrightness(int val) {
         if (val < 10) {
             val = 10;
@@ -148,18 +160,13 @@ public class SystemListActivity extends AppCompatActivity{
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.System.canWrite(getApplicationContext())) {
-                Log.i("MyTag:", "선택한 밝기:"+val);
+                //Log.i("MyTag:", "선택한 밝기:"+val);
                 Settings.System.putInt(baseContext.getContentResolver(),
                         SCREEN_BRIGHTNESS, val);
-            } else {
-                Log.e("MyTag:", "canWrite()불가임~ 앱 권한 - 시스템 설정 권한 확인해보기");
+            } else {  // 권한이 없는 경우 설정을 바꿀 수 없음
+                // Log.e("MyTag:", "canWrite()불가임~ 앱 권한 - 시스템 설정 권한 확인해보기");
             }
         }
-        /*WindowManager.LayoutParams params = getWindow().getAttributes();
-        params.screenBrightness = (float) val / 100;
-        getWindow().setAttributes(params);*/
-        /*Settings.System.putInt(baseContext.getContentResolver(),
-                SCREEN_BRIGHTNESS_MODE, SCREEN_BRIGHTNESS_MODE_AUTOMATIC);*/
     }
 
     @Override
@@ -171,11 +178,8 @@ public class SystemListActivity extends AppCompatActivity{
         boolean permission = true;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {   //23버전 이상
             permission = Settings.System.canWrite(this);
-            Log.d("test", "Can Write Settings: " + permission);
-            if(permission){
-                Log.e("test", "허용");
-            }else{
-                Log.e("test", "불허용");
+            //Log.d("test", "Can Write Settings: " + permission);
+            if(!permission){  // 권한이 없는 경우 설정을 바꿀 수 없음
                 Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
                 intent.setData(Uri.parse("package:" + getPackageName()));
                 startActivityForResult(intent, 2127);
@@ -208,45 +212,4 @@ public class SystemListActivity extends AppCompatActivity{
         public void onStartTrackingTouch(SeekBar seekBar) {}
         public void onStopTrackingTouch(SeekBar seekBar) {}
     }
-
-    public static class SystemSoundFragment extends PreferenceFragment  {
-
-        SharedPreferences prefs;
-        ListPreference noticePreference;
-        ListPreference alarmPreference;
-        private AudioManager mAudioManager;
-
-        @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            addPreferencesFromResource(R.xml.settings_preference);
-            noticePreference = (ListPreference)findPreference("notice_list");
-            alarmPreference = (ListPreference)findPreference("alarm_list");
-
-            prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            mAudioManager = (AudioManager) getActivity().getApplicationContext().getSystemService(getActivity().getApplicationContext().AUDIO_SERVICE);
-
-            // 기본값 세팅
-            if (!prefs.getString("notice_list", "").equals("")) {
-                noticePreference.setSummary(prefs.getString("notice_list", "없음"));
-            }
-            if (!prefs.getString("alarm_list", "").equals("")) {
-                alarmPreference.setSummary(prefs.getString("alarm_list", "없음"));
-            }
-
-            prefs.registerOnSharedPreferenceChangeListener(prefListener);
-        }
-
-        private SharedPreferences.OnSharedPreferenceChangeListener prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals("notice_list")) {
-                    noticePreference.setSummary(prefs.getString("notice_list", "없음"));
-                }
-                if (key.equals("alarm_list")) {
-                    alarmPreference.setSummary(prefs.getString("alarm_list", "없음"));
-                }
-            }
-        };
-    }
-
 }

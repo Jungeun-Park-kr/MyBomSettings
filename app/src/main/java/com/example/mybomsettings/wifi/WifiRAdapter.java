@@ -57,7 +57,7 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
                 myWiFiList.add(wifi);
                 if (wifi.getState() == WiFi.WIFI_CONNECTED) {
                     connectedWiFiPosition = myWiFiList.indexOf(wifi); // 현재 연결되어 있는 인덱스 저장
-                    Log.i(TAG, "현재 연결된 wifi :"+wifi.getScanResult().SSID);
+                    //Log.i(TAG, "현재 연결된 wifi :"+wifi.getScanResult().SSID);
                 }
             }
         }
@@ -185,6 +185,12 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
         return position;
     }
 
+    /**
+     * 연결되어 있는 WiFi의 정보의 팝업을 띄움
+     *
+     * @param v 클릭한 아이템의 뷰
+     * @param pos 클릭한 뷰의 순서 (myWiFiList의 인덱스와 동일)
+     */
     @SuppressLint("SetTextI18n")
     private void showConnectedDialog(View v, int pos) { // 연결된 WiFi 다이얼로그
         Context baseContext = v.getContext();
@@ -286,6 +292,12 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
 
     }
 
+    /**
+     * 새로운 WiFi를 연결함
+     *
+     * @param v 클릭한 리스트의 뷰
+     * @param pos 클릭한 뷰의 위치 (myWiFiList 리스트에서 인덱스와 동일)
+     */
     private void showConnectDialog(View v, int pos) { // WiFi 다이얼로그
         isConnected = false;
         Context baseContext = v.getContext();
@@ -302,7 +314,8 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
                 myWiFiList.get(pos).setState(WiFi.WIFI_CONNECTING);
                 notifyDataSetChanged();
 
-                Log.i(TAG, networkSSID+"연결누름");
+                // TODO : 필요할 수 있으므로 주석처리 해두었습니다
+                //    비밀번호가 너무 짧은 경우 오류 다이얼로그를 띄우는 코드
                 /*if (password.getText().length() < 4) {
                     Log.i(TAG, "짧은 비번");
                     AlertDialog.Builder alert = new AlertDialog.Builder(baseContext);
@@ -333,7 +346,7 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
                             wifiManager.disconnect();
                             wifiManager.enableNetwork(i.networkId, true); // 실제 Android에 연결 시키기
                             boolean isSucceeded = wifiManager.reconnect();
-                            Log.i(TAG, "연결성공?,"+"isSucceeded:"+isSucceeded+", status:"+wifiConfig.status+", supplicant state:"+wifiManager.getConnectionInfo().getSupplicantState());
+                            //Log.i(TAG, "연결성공?,"+"isSucceeded:"+isSucceeded+", status:"+wifiConfig.status+", supplicant state:"+wifiManager.getConnectionInfo().getSupplicantState());
                             return;
                         }
                     }
@@ -366,7 +379,7 @@ public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
 
     /**
      * 저장되어있는 네트워크를 연결한다
-     *  연결 성공
+     *
      * @param v 클릭한 WiFi의 View 객체
      * @param pos myWiFiList에서 해당 WiFi객체의 인덱스
      *

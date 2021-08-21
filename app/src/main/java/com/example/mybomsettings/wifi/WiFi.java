@@ -4,12 +4,12 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 
 public class WiFi {
-    public static final int WIFI_NONE = 0;
-    public static final int WIFI_CONNECTED = 1;
-    public static final int WIFI_SAVED = 2;
-    public static final int WIFI_CONNECTING = 3;
-    public static final int WIFI_ERROR = 4;
-    public static final int WIFI_AUTH_ERROR = 5;
+    public static final int WIFI_NONE = 0; // 아무 연결 없음 (디폴트)
+    public static final int WIFI_CONNECTED = 1; // 연결 됨
+    public static final int WIFI_SAVED = 2; // 저장됨
+    public static final int WIFI_CONNECTING = 3; // 연결중...
+    public static final int WIFI_ERROR = 4; // 오류 (기타 오류)
+    public static final int WIFI_AUTH_ERROR = 5; // 인증 오류 (비밀번호 오류)
 
     private ScanResult scanResult;
     private int state; // 해당 와이파이 저장 유무
