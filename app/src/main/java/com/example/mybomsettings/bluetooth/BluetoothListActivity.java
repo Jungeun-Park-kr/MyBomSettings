@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
@@ -52,7 +51,12 @@ import java.util.UUID;
 
 @SuppressLint("LongLogTag")
 public class BluetoothListActivity extends AppCompatActivity {
-
+    /**
+     * 블루투스 설정 메인 액티비티입니다.
+     * - 블루투스 ON/OFF
+     * - 저장된(페어링된) 블루투스 관리
+     * - 새로운 블루투스 연결이 가능합니다.
+     */
     private static Context baseContext;
     private static final String TAG = "BluetoothListActivity MyTag";
     public static String pairedDeviceState;
@@ -97,23 +101,28 @@ public class BluetoothListActivity extends AppCompatActivity {
     private static final long SCAN_PERIOD = 10000; // Stops scanning after 10 seconds.
 
     //Adapter
-    private static BluetoothRAdapter bluetoothRAdapter;
-    private SimpleAdapter adapterBluetooth;
+    private static BluetoothRAdapter pairedBluetoothRAdapter; // 페어링된(저장된) 블루투스 RecyclerView Adapter
+    private SimpleAdapter availableBluetoothSAdapter; // 검색된 블루투스 Simple Adapter
 
     //list - Bluetooth 목록 저장
-    static List<Bluetooth> pairedDevices; // 페어링된 디바이스 정보 저장
-
-    private List<Map<String, String>> dataBluetooth;
-    private List<BluetoothDevice> bluetoothDevices; // 검색된 디바이스 저장
+    static List<Bluetooth> pairedDevices; // 페어링된 디바이스 정보 저장 (pairedBluetoothRAdapter에 사용)
+    private List<Map<String, String>> availableDevices; // 사용 가능한 디바이스 저장 (availableBluetoothSAdapter 에 사용)
+    private List<BluetoothDevice> bluetoothDevices; // 사용 가능한 디바이스 저장 (실제로 연결하기 위해 사용)
+    /**
+     * <참고용>
+     * availableDevices와 bluetoothDevices차이점
+     * - availableDevices : availableBluetoothSAdapter에 넣을 디바이스 이름 넣기용 리스트
+     * - bluetoothDevices : 사용가능한 블루투스 디바이스 객체를 담음 -> 연결에 이용하기 위한 리스트
+     */
 
     private int selectDevice;
 
     
     // UI
     SwitchMaterial bluetoothSwitch; // 블루투스 사용 유무 스위치
-    ListView availableDevices; // 연결 가능한 디바이스
-
+    ListView availableListView; // 연결 가능한 디바이스
     RecyclerView pairedRecyclerView; // 등록된 디바이스를 위한 pairedRecyclerView
+
     TextView infoTextView; // 기기이름 및 연결 안내
     TextView errorTextView; // 에러 메시지
     static TextView infoMessage;
@@ -172,7 +181,7 @@ public class BluetoothListActivity extends AppCompatActivity {
 
 
         //검색된 디바이스목록 클릭시 페어링 요청
-        availableDevices.setOnItemClickListener((parent, view, position, id) -> {
+        availableListView.setOnItemClickListener((parent, view, position, id) -> {
             device = bluetoothDevices.get(position);
             try {
                 Method method = device.getClass().getMethod("createBond", (Class[]) null);
@@ -198,7 +207,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                 infoTextView.setText("블루투스가 켜져있는 동안 "+bluetoothAdapter.getName()+"이(가) 주변의 기기에 표시됩니다.");
                 infoTextView.setVisibility(View.VISIBLE);
                 pairedRecyclerView.setVisibility(View.VISIBLE);
-                availableDevices.setVisibility(View.VISIBLE);
+                availableListView.setVisibility(View.VISIBLE);
                 availableLayout.setVisibility(View.VISIBLE);
                 registeredLayout.setVisibility(View.VISIBLE);
             }
@@ -207,7 +216,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                 errorTextView.setVisibility(View.VISIBLE);
                 infoTextView.setVisibility(View.GONE);
                 pairedRecyclerView.setVisibility(View.GONE);
-                availableDevices.setVisibility(View.GONE);
+                availableListView.setVisibility(View.GONE);
                 availableLayout.setVisibility(View.GONE);
                 registeredLayout.setVisibility(View.GONE);
             }
@@ -248,7 +257,7 @@ public class BluetoothListActivity extends AppCompatActivity {
         infoMessage = findViewById(R.id.pairedNoInfo);
 
         bluetoothSwitch = (SwitchMaterial)findViewById(R.id.switch_bluetooth);
-        availableDevices = findViewById(R.id.list_available_devices);
+        availableListView = findViewById(R.id.list_available_devices);
         pairedRecyclerView = (RecyclerView)findViewById(R.id.recyclerview_registered_devices);
         searchBtn = findViewById(R.id.btn_bluetooth_search);
         infoTextView = findViewById(R.id.tv_bluetooth_info);
@@ -264,7 +273,7 @@ public class BluetoothListActivity extends AppCompatActivity {
             errorTextView.setVisibility(View.VISIBLE);
             infoTextView.setVisibility(View.GONE);
             pairedRecyclerView.setVisibility(View.GONE);
-            availableDevices.setVisibility(View.GONE);
+            availableListView.setVisibility(View.GONE);
             availableLayout.setVisibility(View.GONE);
             registeredLayout.setVisibility(View.GONE);
             Log.i(TAG,"현재 블루투스 꺼져 있음");
@@ -275,7 +284,7 @@ public class BluetoothListActivity extends AppCompatActivity {
             infoTextView.setText("블루투스가 켜져있는 동안 "+bluetoothAdapter.getName()+"이(가) 주변의 기기에 표시됩니다.");
             infoTextView.setVisibility(View.VISIBLE);
             pairedRecyclerView.setVisibility(View.VISIBLE);
-            availableDevices.setVisibility(View.VISIBLE);
+            availableListView.setVisibility(View.VISIBLE);
             availableLayout.setVisibility(View.VISIBLE);
             registeredLayout.setVisibility(View.VISIBLE);
         }
@@ -289,9 +298,9 @@ public class BluetoothListActivity extends AppCompatActivity {
         setPairedDevices(false);
 
         // 사용 가능한 기기 - simpleAdapter 사용
-        dataBluetooth = new ArrayList<>();
-        adapterBluetooth  = new SimpleAdapter(this, dataBluetooth, R.layout.item_bluetooth_list, new String[]{"name"}, new int[]{R.id.tv_bluetooth});
-        availableDevices.setAdapter(adapterBluetooth);
+        availableDevices = new ArrayList<>();
+        availableBluetoothSAdapter = new SimpleAdapter(this, availableDevices, R.layout.item_bluetooth_list, new String[]{"name"}, new int[]{R.id.tv_bluetooth});
+        availableListView.setAdapter(availableBluetoothSAdapter);
         
     }
 
@@ -316,11 +325,11 @@ public class BluetoothListActivity extends AppCompatActivity {
             }
         }
 
-        bluetoothRAdapter = new BluetoothRAdapter(this, pairedDevices);
-        bluetoothRAdapter.setHasStableIds(true); // 안깜빡임 (근데 깜빡임..ㅋ)
-        pairedRecyclerView.setAdapter(bluetoothRAdapter);
+        pairedBluetoothRAdapter = new BluetoothRAdapter(this, pairedDevices);
+        pairedBluetoothRAdapter.setHasStableIds(true); // 안깜빡임 (근데 깜빡임..ㅋ)
+        pairedRecyclerView.setAdapter(pairedBluetoothRAdapter);
 
-        if (bluetoothRAdapter.getItemCount() == 0) { // 페어링 된 디바이스 없는 경우
+        if (pairedBluetoothRAdapter.getItemCount() == 0) { // 페어링 된 디바이스 없는 경우
             infoMessage.setVisibility(View.VISIBLE);
         } else {
             infoMessage.setVisibility(View.GONE);
@@ -425,10 +434,10 @@ public class BluetoothListActivity extends AppCompatActivity {
         }
         Log.i(TAG, "List 변경됨 - pairedDevices의 길이:"+pairedDevices.size());
         updateBluetoothList(pairedDevices);
-        bluetoothRAdapter.notifyDataSetChanged();
+        pairedBluetoothRAdapter.notifyDataSetChanged();
         Log.i(TAG, "완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
 
-        if (bluetoothRAdapter.getItemCount() == 0) { // 페어링 된 디바이스 없는 경우
+        if (pairedBluetoothRAdapter.getItemCount() == 0) { // 페어링 된 디바이스 없는 경우
             infoMessage.setVisibility(View.VISIBLE);
         } else {
             infoMessage.setVisibility(View.GONE);
@@ -643,7 +652,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                 lottieAnimationView.setVisibility(View.VISIBLE);
                 setUpAnimation(lottieAnimationView);
 
-                dataBluetooth.clear();
+                availableDevices.clear();
                 bluetoothDevices.clear();
 //                Log.e(TAG, "search start : " + "검색 시작");
                 //로띠시작---아래에서
@@ -654,7 +663,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                 Log.i(TAG, "search name : " + device.getName() + ", search mac : " + device.getAddress());
 
                 // 이미 검색된 디바이스인지 확인
-                Optional result = dataBluetooth.stream().filter(x -> x.get("mac").equals(device.getAddress())).findFirst();
+                Optional result = availableDevices.stream().filter(x -> x.get("mac").equals(device.getAddress())).findFirst();
                 if (result.isPresent()) {
                     Log.i(TAG, "찾음 : " + result);
                     System.out.println(result.get());
@@ -675,9 +684,9 @@ public class BluetoothListActivity extends AppCompatActivity {
                      //map.put("address", device.getAddress()); //device.getAddress() : 블루투스 디바이스의 MAC 주소
                      }*/
 
-                    dataBluetooth.add(map);
+                    availableDevices.add(map);
                     //리스트 목록갱신
-                    adapterBluetooth.notifyDataSetChanged();
+                    availableBluetoothSAdapter.notifyDataSetChanged();
 
                     //블루투스 디바이스 저장
                     bluetoothDevices.add(device);
@@ -700,18 +709,18 @@ public class BluetoothListActivity extends AppCompatActivity {
                     if (selectDevice != -1) {
                         bluetoothDevices.remove(selectDevice);
 
-                        dataBluetooth.remove(selectDevice);
-                        adapterBluetooth.notifyDataSetChanged();
+                        availableDevices.remove(selectDevice);
+                        availableBluetoothSAdapter.notifyDataSetChanged();
                         selectDevice = -1;
                     }
 
-                    if (bluetoothRAdapter.getItemCount() == 0) { // 페어링 된 디바이스 없는 경우
+                    if (pairedBluetoothRAdapter.getItemCount() == 0) { // 페어링 된 디바이스 없는 경우
                         infoMessage.setVisibility(View.VISIBLE);
                     } else {
                         infoMessage.setVisibility(View.GONE);
                     }
 
-                    bluetoothRAdapter.notifyDataSetChanged();
+                    pairedBluetoothRAdapter.notifyDataSetChanged();
 
                 } else if (paired.getBondState() == BluetoothDevice.BOND_NONE) { // 연결 해제
                    //Log.i(TAG, "연결 해제함");
@@ -725,7 +734,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                     if (connectedDevice.getName().equals(bluetooth.getName().toString())) { // 일치하는 기기 찾기
                         pairedDevices.get(pairedDevices.indexOf(bluetooth)).setConnected(true);
                         updateBluetoothList(pairedDevices);
-                        bluetoothRAdapter.notifyDataSetChanged();
+                        pairedBluetoothRAdapter.notifyDataSetChanged();
                         /*Log.i(TAG, "pairedDevices 리스트 완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
                         Log.i(TAG, "--연결됨--" + connectedDevice.getName());*/
                             break;
@@ -738,7 +747,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                     if (connectedDevice.getName().equals(bluetooth.getName().toString())) { // 일치하는 기기 찾기
                         pairedDevices.get(pairedDevices.indexOf(bluetooth)).setConnected(false);
                         updateBluetoothList(pairedDevices);
-                        bluetoothRAdapter.notifyDataSetChanged();
+                        pairedBluetoothRAdapter.notifyDataSetChanged();
                         /*Log.i(TAG, "pairedDevices 리스트 완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
                         Log.i(TAG, "--연결 해제 요청--" + connectedDevice.getName());*/
                         break;
@@ -751,7 +760,7 @@ public class BluetoothListActivity extends AppCompatActivity {
                     if (connectedDevice.getName().equals(bluetooth.getName().toString())) { // 일치하는 기기 찾기
                         pairedDevices.get(pairedDevices.indexOf(bluetooth)).setConnected(false);
                         updateBluetoothList(pairedDevices);
-                        bluetoothRAdapter.notifyDataSetChanged();
+                        pairedBluetoothRAdapter.notifyDataSetChanged();
                         /*Log.i(TAG, "pairedDevices 리스트  완전 갱신함 - pairedDevices의 길이:"+pairedDevices.size());
                         Log.i(TAG, "--연결 해제됨--" + connectedDevice.getName());*/
                         break;
@@ -820,7 +829,7 @@ public class BluetoothListActivity extends AppCompatActivity {
         pairedDevices.clear();
         pairedDevices.addAll(tmp);
         if (bluetoothAdapter != null)
-            bluetoothRAdapter.notifyDataSetChanged();
+            pairedBluetoothRAdapter.notifyDataSetChanged();
     }
 
 

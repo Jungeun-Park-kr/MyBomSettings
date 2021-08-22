@@ -33,7 +33,17 @@ import static android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 public class SystemListActivity extends AppCompatActivity{
+    /**
+     * 시스템 설정 액티비티 입니다.
+     * 디스플레이 및 소리 관련 설정을 변경합니다.
+     */
 
+
+    /**
+     * <<디스플레이>>
+     *     - 자동 밝기 ON/OFF 스위치
+     *     - 밝기 조절 SeekBar
+     */
     // 디스플레이 UI
     SeekBar brightnessSeekBar; // 밝기 조절
     Switch brightnessModeSwitch; // 자동 밝기 ON/OFF

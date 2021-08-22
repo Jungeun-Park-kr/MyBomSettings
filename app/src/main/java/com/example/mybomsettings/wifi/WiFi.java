@@ -4,6 +4,13 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 
 public class WiFi {
+    /**
+     * WiFi를 관리하기 위한 WiFi 객체
+     *  - scanResult : WiFi 메인 화면에서 WiFi 검색시 리턴되는 WiFi 정보가 담긴 객체
+     *  - state : 연결 상태를 나타냄
+     *  - level : 신호 강도
+     *  - ssid : WiFi의 이름(SSID)
+     */
     public static final int WIFI_NONE = 0; // 아무 연결 없음 (디폴트)
     public static final int WIFI_CONNECTED = 1; // 연결 됨
     public static final int WIFI_SAVED = 2; // 저장됨

@@ -32,7 +32,6 @@ import static com.example.mybomsettings.bluetooth.BluetoothListActivity.unpairDe
 
 @SuppressLint("LongLogTag")
 public class BluetoothRAdapter extends RecyclerView.Adapter<BluetoothRAdapter.ViewHolder>{
-
     /**
      * 등록된 디바이스 목록을 관리하기 위한 RecyclerView Adapter
      * - 데이터 등록, 클릭 이벤트 등을 관리

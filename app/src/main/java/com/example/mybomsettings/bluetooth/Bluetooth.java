@@ -3,7 +3,13 @@ package com.example.mybomsettings.bluetooth;
 import android.bluetooth.BluetoothDevice;
 
 public class Bluetooth {
-
+    /**
+     * 등록된 디바이스 목록을 관리하기 위한 Bluetooth 객체
+     *  - device : 블루투스 디바이스 객체
+     *  - name : 블루투스 기기 이름
+     *  - address : 블루투스 MAC 주소
+     *  - connected : 현재 연결된 기기인지 여부 (true/false)
+     */
     private BluetoothDevice device; // 블루투스 기기
     private CharSequence name; // 블루투스 기기 이름
     private CharSequence address; // 블루투스 MAC 주소

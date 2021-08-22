@@ -28,7 +28,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
-
+    /**
+     * 설정 앱의 매인 액티비티입니다.
+     * 설정 목록이 있습니다. (시스템 설정, WiFi, 블루투스, 날짜 및 시간, 휴대폰 정보)
+     */
     static final String[] SETTINGS_MENU = {"시스템 설정", "Wi-Fi", "블루투스", "날짜 및 시간", "휴대전화 정보"};
     private static final String TAG = "MainActivity MyTag";
     private final int REQUEST_PERMISSION_ACCESS_COARSE_LOCATION=1; // 블루투스 권한

@@ -46,7 +46,10 @@ import static com.example.mybomsettings.wifi.WifiRAdapter.connectingWiFiPosition
 
 @SuppressLint("LongLogTag")
 public class WifiListActivity extends AppCompatActivity {
-
+    /**
+     *  WIFI 설정 액티비티입니다.
+     *  WIFI ON/OFF 제어와 WIFI 연결이 가능합니다.
+     * **/
     private static Context baseContext;
     private static final String TAG = "WifiListActivity MyTag";
 

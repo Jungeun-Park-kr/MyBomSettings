@@ -34,8 +34,10 @@ import static com.example.mybomsettings.bluetooth.BluetoothListActivity.updateBl
 
 public class BluetoothService extends Service {
     /**
-     * 항상 블루투스 연결을 감지하기 위한 서비스
+     * 항상 블루투스 연결을 감지하기 위한 서비스입니다.
      * - 포그라운드 서비스 방식으로 구현함
+     * - 연결상태가 변화하면 pairedDevices 리스트를 수정하여 변경된 상태를 사용자에게 알려줌
+     *                  (ex. 연결됨 감지 후, 기기 이름 아래에 연결됨 텍스트 띄우기)
      */
 
     private static final String TAG = "MyTag)BluetoothService";

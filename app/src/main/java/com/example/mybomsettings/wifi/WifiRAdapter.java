@@ -37,7 +37,10 @@ import static com.example.mybomsettings.wifi.WifiListActivity.isConnected;
 
 @SuppressLint("LongLogTag")
 public class WifiRAdapter extends RecyclerView.Adapter<WifiRAdapter.ViewHolder>{
-
+    /**
+     * 와이파이 목록을 관리하기 위한 RecyclerView Adapter
+     * - 클릭 이벤트를 관리
+     */
     public static ArrayList<WiFi> myWiFiList;
     public static int connectedWiFiPosition = -1; // 현재 연결된 WiFi의 인덱스
     public static int connectingWiFiPosition = -1; // 연결을 시도할 WiFi의 인덱스

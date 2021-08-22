@@ -28,10 +28,12 @@ import java.util.Enumeration;
 import java.util.List;
 
 public class DeviceInfoListActivity extends AppCompatActivity {
-
     /**
-     * 하드 코딩 된 것 : 모델, Android 버전
-     * 직접 구현 된 것 : 배터리 상태, 배터리 수준, IP주소, WiFi맥주소, 블루투스 주소, 빌드번호
+     *  휴대폰 정보 액티비티입니다.
+     */
+    /** TODO : 참고사항
+     *      하드 코딩 된 것 : 모델, Android 버전
+     *      직접 구현 된 것 : 배터리 상태, 배터리 수준, IP주소, WiFi맥주소, 블루투스 주소, 빌드번호
      */
     TextView batteryState; // 배터리 상태
     TextView batteryLevel; // 배터리 수준
